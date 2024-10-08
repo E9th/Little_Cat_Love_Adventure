@@ -2,8 +2,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const path = require('path'); 
 const app = express();
 
+app.use(express.static(path.join(__dirname)));
 app.use(express.json());
 
 // MongoDB URI (แก้ไขด้วยข้อมูลของคุณ)
@@ -32,7 +34,7 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 
 // ตั้งค่า JWT
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret'; // เพิ่มการดึงจาก Environment Variable
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 const JWT_EXPIRATION = '1h';
 
 // ฟังก์ชันสำหรับสร้างโทเค็น
@@ -56,12 +58,11 @@ app.post('/api/register', async (req, res) => {
 // API สำหรับการเข้าสู่ระบบ
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
-    console.log("Username:", username); // ตรวจสอบชื่อผู้ใช้ที่ส่งเข้ามา
     const user = await User.findOne({ username });
     if (user) {
-        console.log("User found:", user); // ตรวจสอบข้อมูลผู้ใช้ที่พบ
         if (await bcrypt.compare(password, user.password)) {
             const token = createToken(user._id);
+            console.log("Generated token:", token); // ตรวจสอบ token
             res.json({ success: true, token });
         } else {
             res.json({ success: false, message: 'Invalid username or password!' });
@@ -84,10 +85,17 @@ app.post('/api/refreshToken', (req, res) => {
 // API สำหรับบันทึกข้อมูลเกม
 app.post('/api/saveGame', async (req, res) => {
     const { token, pigs, coins, guilds, playerGuild, marketplace } = req.body;
+    
     if (!token) return res.status(401).json({ success: false, message: 'Unauthorized' });
+    if (typeof pigs === 'undefined' || typeof coins === 'undefined') {
+        return res.status(400).json({ success: false, message: 'Invalid game data' });
+    }
 
     jwt.verify(token, JWT_SECRET, async (err, decoded) => {
-        if (err) return res.status(403).json({ success: false, message: 'Invalid token' });
+        if (err) {
+            console.error('Invalid token:', err);
+            return res.status(403).json({ success: false, message: 'Invalid token' });
+        }
         try {
             await User.updateOne({ _id: decoded.userId }, { pigs, coins, guilds, playerGuild, marketplace });
             res.json({ success: true });
@@ -101,10 +109,18 @@ app.post('/api/saveGame', async (req, res) => {
 // API สำหรับดึงข้อมูลเกม
 app.post('/api/getGameData', async (req, res) => {
     const { token } = req.body;
-    if (!token) return res.status(401).json({ success: false, message: 'Unauthorized' });
+    console.log("Received token:", token); // ตรวจสอบค่าที่ได้รับ
+    
+    if (!token) {
+        console.error("Token is undefined");
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
 
     jwt.verify(token, JWT_SECRET, async (err, decoded) => {
-        if (err) return res.status(403).json({ success: false, message: 'Invalid token' });
+        if (err) {
+            console.error('Invalid token:', err);
+            return res.status(403).json({ success: false, message: 'Invalid token' });
+        }
         const user = await User.findById(decoded.userId);
         if (user) {
             res.json({
@@ -115,15 +131,25 @@ app.post('/api/getGameData', async (req, res) => {
                 marketplace: user.marketplace
             });
         } else {
+            console.error("User not found!");
             res.json({ success: false, message: 'User not found!' });
         }
     });
 });
 
+
 // API สำหรับการดูอันดับ
 app.get('/api/leaderboard', async (req, res) => {
     const leaderboard = await User.find().sort({ coins: -1 }).limit(10).select('username coins');
     res.json({ success: true, leaderboard });
+});
+
+// เสิร์ฟไฟล์ static จากโฟลเดอร์ public
+app.use(express.static(path.join(__dirname, 'public')));
+
+// เสิร์ฟไฟล์ index.html เมื่อเข้าถึง root URL
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // เริ่มต้นเซิร์ฟเวอร์
