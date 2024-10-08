@@ -72,6 +72,18 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+// Verify token
+app.post('/api/verifyToken', async (req, res) => {
+    const { token } = req.body;
+    try {
+        const decoded = jwt.verify(token, 'your_secret_key');
+        console.log("Decoded token:", decoded); // Check decoded token
+        res.json({ success: true, decoded });
+    } catch (error) {
+        res.json({ success: false, message: 'Invalid token!' });
+    }
+});
+
 // API สำหรับการรีเฟรชโทเค็น
 app.post('/api/refreshToken', (req, res) => {
     const { token } = req.body;
@@ -111,10 +123,7 @@ app.post('/api/getGameData', async (req, res) => {
     const { token } = req.body;
     console.log("Received token:", token); // ตรวจสอบค่าที่ได้รับ
     
-    if (!token) {
-        console.error("Token is undefined");
-        return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
+    if (!token) return res.status(401).json({ success: false, message: 'Unauthorized' });
 
     jwt.verify(token, JWT_SECRET, async (err, decoded) => {
         if (err) {
@@ -131,12 +140,10 @@ app.post('/api/getGameData', async (req, res) => {
                 marketplace: user.marketplace
             });
         } else {
-            console.error("User not found!");
             res.json({ success: false, message: 'User not found!' });
         }
     });
 });
-
 
 // API สำหรับการดูอันดับ
 app.get('/api/leaderboard', async (req, res) => {
