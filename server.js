@@ -2,15 +2,37 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { MongoClient, ServerApiVersion } = require('mongodb'); // นำเข้า MongoDB client
 const app = express();
 
 app.use(express.json());
 
-mongoose.connect('mongodb://localhost:27017/pigFarmGame', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+// MongoDB URI (แก้ไขด้วยข้อมูลของคุณ)
+const uri = "mongodb+srv://thanapondongphuyaw:otZGSuZWBOVvhnbz@pig-farm-game.rlyss.mongodb.net/?retryWrites=true&w=majority&appName=pig-farm-game";
+
+// สร้าง MongoClient
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
 });
 
+// เชื่อมต่อ MongoDB
+async function connectToMongoDB() {
+  try {
+    await client.connect();
+    console.log("Connected to MongoDB");
+  } catch (err) {
+    console.error("Error connecting to MongoDB:", err);
+  }
+}
+
+// เรียกใช้ฟังก์ชันเชื่อมต่อ
+connectToMongoDB();
+
+// สร้าง Schema และ Model สำหรับ User
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -23,6 +45,7 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
+// ตั้งค่า JWT
 const JWT_SECRET = 'your_jwt_secret';
 const JWT_EXPIRATION = '1h';
 
@@ -31,10 +54,7 @@ function createToken(userId) {
     return jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT_EXPIRATION });
 }
 
-mongoose.connection.on('error', (err) => {
-    console.error('MongoDB connection error:', err);
-});
-
+// API สำหรับการสมัครสมาชิก
 app.post('/api/register', async (req, res) => {
     const { username, password } = req.body;
     try {
@@ -47,6 +67,7 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
+// API สำหรับการเข้าสู่ระบบ
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
@@ -58,6 +79,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+// API สำหรับการรีเฟรชโทเค็น
 app.post('/api/refreshToken', (req, res) => {
     const { token } = req.body;
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
@@ -67,6 +89,7 @@ app.post('/api/refreshToken', (req, res) => {
     });
 });
 
+// API สำหรับบันทึกข้อมูลเกม
 app.post('/api/saveGame', async (req, res) => {
     const { token, pigs, coins, guilds, playerGuild, marketplace } = req.body;
     if (!token) return res.status(401).json({ success: false, message: 'Unauthorized' });
@@ -83,6 +106,7 @@ app.post('/api/saveGame', async (req, res) => {
     });
 });
 
+// API สำหรับดึงข้อมูลเกม
 app.post('/api/getGameData', async (req, res) => {
     const { token } = req.body;
     if (!token) return res.status(401).json({ success: false, message: 'Unauthorized' });
@@ -104,11 +128,13 @@ app.post('/api/getGameData', async (req, res) => {
     });
 });
 
+// API สำหรับการดูอันดับ
 app.get('/api/leaderboard', async (req, res) => {
     const leaderboard = await User.find().sort({ coins: -1 }).limit(10).select('username coins');
     res.json({ success: true, leaderboard });
 });
 
+// เริ่มต้นเซิร์ฟเวอร์
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
