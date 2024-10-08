@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pig Farm Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Pig Farm Game</h1>
+
+        <div id="auth">
+            <button onclick="loginUser()">Login</button>
+            <button onclick="registerUser()">Register</button>
+        </div>
+
+        <!-- ฟาร์ม -->
+        <div id="farm" style="display:none;">
+            <h2>Your Farm</h2>
+            <ul id="pigList"></ul>
+            <button onclick="raisePig('Economy')">Raise Economy Pig</button>
+            <button onclick="raisePig('Battle')">Raise Battle Pig</button>
+        </div>
+
+        <!-- ระบบพันธมิตร -->
+        <div id="guild" style="display:none;">
+            <h2>Guild</h2>
+            <button onclick="createGuild(prompt('Enter guild name:'))">Create Guild</button>
+            <button onclick="joinGuild(prompt('Enter guild name:'))">Join Guild</button>
+            <button onclick="contributeToGuildQuest()">Contribute to Guild Quest</button>
+        </div>
+
+        <!-- สนามประลอง -->
+        <div id="arena" style="display:none;">
+            <h2>Pig Battle Arena</h2>
+            <button onclick="battlePigs(0, 1)">Start Battle</button>
+        </div>
+
+        <!-- สภาพอากาศ -->
+        <div id="weather" style="display:none;">
+            <h2>Weather & Seasons</h2>
+            <button onclick="changeSeason()">Change Season</button>
+        </div>
+
+        <!-- ตลาดกลาง -->
+        <div id="marketplace" style="display:none;">
+            <h2>Marketplace</h2>
+            <ul id="marketList"></ul>
+            <button onclick="sellItem(pigs[0], 500)">Sell Pig</button>
+        </div>
+
+        <!-- ระบบเควสต์ -->
+        <div id="quests" style="display:none;">
+            <h2>Quests</h2>
+            <ul id="questList"></ul>
+        </div>
+
+        <!-- ระบบจัดอันดับผู้เล่น -->
+        <div id="leaderboard" style="display:none;">
+            <h2>Leaderboard</h2>
+            <ul id="leaderboardList"></ul>
+        </div>
+
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
