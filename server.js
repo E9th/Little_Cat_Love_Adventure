@@ -56,10 +56,16 @@ app.post('/api/register', async (req, res) => {
 // API สำหรับการเข้าสู่ระบบ
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
+    console.log("Username:", username); // ตรวจสอบชื่อผู้ใช้ที่ส่งเข้ามา
     const user = await User.findOne({ username });
-    if (user && await bcrypt.compare(password, user.password)) {
-        const token = createToken(user._id);
-        res.json({ success: true, token });
+    if (user) {
+        console.log("User found:", user); // ตรวจสอบข้อมูลผู้ใช้ที่พบ
+        if (await bcrypt.compare(password, user.password)) {
+            const token = createToken(user._id);
+            res.json({ success: true, token });
+        } else {
+            res.json({ success: false, message: 'Invalid username or password!' });
+        }
     } else {
         res.json({ success: false, message: 'Invalid username or password!' });
     }
