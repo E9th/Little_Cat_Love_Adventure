@@ -2,35 +2,21 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { MongoClient, ServerApiVersion } = require('mongodb'); // นำเข้า MongoDB client
 const app = express();
 
 app.use(express.json());
 
 // MongoDB URI (แก้ไขด้วยข้อมูลของคุณ)
-const uri = "mongodb+srv://thanapondongphuyaw:otZGSuZWBOVvhnbz@pig-farm-game.rlyss.mongodb.net/?retryWrites=true&w=majority&appName=pig-farm-game";
-
-// สร้าง MongoClient
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
+const uri = "mongodb+srv://thanapondongphuyaw:otZGSuZWBOVvhnbz@pig-farm-game.rlyss.mongodb.net/pig-farm-game?retryWrites=true&w=majority";
 
 // เชื่อมต่อ MongoDB
-async function connectToMongoDB() {
-  try {
-    await client.connect();
-    console.log("Connected to MongoDB");
-  } catch (err) {
-    console.error("Error connecting to MongoDB:", err);
-  }
-}
-
-// เรียกใช้ฟังก์ชันเชื่อมต่อ
-connectToMongoDB();
+mongoose.connect(uri)
+  .then(() => {
+    console.log("Connected to MongoDB Atlas");
+  })
+  .catch(err => {
+    console.error("MongoDB connection error:", err);
+  });
 
 // สร้าง Schema และ Model สำหรับ User
 const userSchema = new mongoose.Schema({
@@ -46,7 +32,7 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 
 // ตั้งค่า JWT
-const JWT_SECRET = 'your_jwt_secret';
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret'; // เพิ่มการดึงจาก Environment Variable
 const JWT_EXPIRATION = '1h';
 
 // ฟังก์ชันสำหรับสร้างโทเค็น
