@@ -9,7 +9,7 @@ app.use(express.static(path.join(__dirname)));
 app.use(express.json());
 
 // MongoDB URI (แก้ไขด้วยข้อมูลของคุณ)
-const uri = "mongodb+srv://thanapondongphuyaw:otZGSuZWBOVvhnbz@pig-farm-game.rlyss.mongodb.net/pig-farm-game?retryWrites=true&w=majority";
+const uri = "mongodb+srv://thanapondongphuyaw:ktCJebYokzUbKOaC@pig-farm-game.rlyss.mongodb.net/pig-farm-game?retryWrites=true&w=majority";
 
 // เชื่อมต่อ MongoDB
 mongoose.connect(uri)
