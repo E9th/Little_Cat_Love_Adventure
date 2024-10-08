@@ -13,18 +13,30 @@ let quests = [
 ];
 
 async function registerUser() {
-    const username = prompt('Enter a username:');
-    const password = prompt('Enter a password:');
-    const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-    });
-    const data = await response.json();
-    if (data.success) {
-        alert('Registration successful!');
+    const username = prompt('Enter username:');
+    const password = prompt('Enter password:');
+
+    if (username && password) {
+        try {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+            if (data.success) {
+                alert('Registration successful!');
+            } else {
+                alert(data.message);
+            }
+        } catch (error) {
+            console.error('Error registering user:', error);
+            alert('Registration failed!');
+        }
     } else {
-        alert(data.message);
+        alert('Please enter a username and password.');
     }
 }
 
@@ -49,11 +61,17 @@ async function loginUser() {
 
 async function loadGameData() {
     const response = await fetch('/api/getGameData', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token })
-    });
-    const data = await response.json();
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ token: yourToken }) // ให้แน่ใจว่า token ไม่เป็น undefined
+})
+.then(response => response.json())
+.then(data => {
+    console.log("Game Data:", data); // ตรวจสอบข้อมูลที่ได้รับ
+})
+.catch(error => console.error("Error:", error));
     if (data.success) {
         pigs = data.pigs;
         coins = data.coins;
