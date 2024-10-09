@@ -12,12 +12,9 @@ body {
 .container {
     text-align: center;
     padding: 20px;
-    max-width: 800px;
+    max-width: 600px;
     width: 100%;
     box-sizing: border-box;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 h1, h2 {
@@ -25,24 +22,16 @@ h1, h2 {
     margin: 10px 0;
 }
 
-.info-panel {
-    background-color: #e9e9e9;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
 button {
-    padding: 10px 15px;
+    padding: 15px 20px;
     margin: 10px;
-    font-size: 16px;
+    font-size: 18px;
     cursor: pointer;
     background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 10px;
-    transition: background-color 0.3s;
+    width: 80%;
 }
 
 button:hover {
@@ -59,14 +48,6 @@ li {
     font-size: 16px;
 }
 
-.game-section {
-    margin: 20px 0;
-    padding: 15px;
-    background-color: #fafafa;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
 .item-details {
     border: 1px solid #ccc;
     padding: 10px;
@@ -79,7 +60,7 @@ li {
 }
 
 .notification {
-    position: fixed;
+    position: absolute;
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
@@ -95,4 +76,36 @@ li {
     opacity: 0;
 }
 
-/* โค้ดที่คุณให้มา */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 24px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    button {
+        font-size: 16px;
+        padding: 12px;
+        margin: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 20px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 10px;
+        margin: 6px;
+        width: 90%;
+    }
+}
+
