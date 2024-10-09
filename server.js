@@ -8,13 +8,17 @@ const app = express();
 app.use(express.static(path.join(__dirname)));
 app.use(express.json());
 
-// MongoDB URI (แก้ไขด้วยข้อมูลของคุณ)
-const uri = "mongodb+srv://thanapondongphuyaw:ktCJebYokzUbKOaC@pig-farm-game.rlyss.mongodb.net/pig-farm-game?retryWrites=true&w=majority";
+// MongoDB URI (ใช้ environment variable หรือค่าที่ตั้งไว้เป็นค่าเริ่มต้น)
+const uri = process.env.MONGO_URI || 'mongodb+srv://thanapondongphuyaw:ktCJebYokzUbKOaC@pig-farm-game.rlyss.mongodb.net/?retryWrites=true&w=majority';
+
+// JWT Secret (ใช้ environment variable หรือค่าที่ตั้งไว้เป็นค่าเริ่มต้น)
+const JWT_SECRET = process.env.JWT_SECRET || 'mySuperSecretKey123!';
+const JWT_EXPIRATION = '1h';
 
 // เชื่อมต่อ MongoDB
-mongoose.connect(uri)
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverSelectionTimeoutMS: 5000 })
   .then(() => {
-    console.log("Connected to MongoDB Atlas");
+    console.log("Connected to MongoDB Atlas successfully");
   })
   .catch(err => {
     console.error("MongoDB connection error:", err);
@@ -32,10 +36,6 @@ const userSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model('User', userSchema);
-
-// ตั้งค่า JWT
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
-const JWT_EXPIRATION = '1h';
 
 // ฟังก์ชันสำหรับสร้างโทเค็น
 function createToken(userId) {
@@ -69,18 +69,6 @@ app.post('/api/login', async (req, res) => {
         }
     } else {
         res.json({ success: false, message: 'Invalid username or password!' });
-    }
-});
-
-// Verify token
-app.post('/api/verifyToken', async (req, res) => {
-    const { token } = req.body;
-    try {
-        const decoded = jwt.verify(token, 'your_secret_key');
-        console.log("Decoded token:", decoded); // Check decoded token
-        res.json({ success: true, decoded });
-    } catch (error) {
-        res.json({ success: false, message: 'Invalid token!' });
     }
 });
 
@@ -118,33 +106,6 @@ app.post('/api/saveGame', async (req, res) => {
     });
 });
 
-// API สำหรับดึงข้อมูลเกม
-app.post('/api/getGameData', async (req, res) => {
-    const { token } = req.body;
-    console.log("Received token:", token); // ตรวจสอบค่าที่ได้รับ
-    
-    if (!token) return res.status(401).json({ success: false, message: 'Unauthorized' });
-
-    jwt.verify(token, JWT_SECRET, async (err, decoded) => {
-        if (err) {
-            console.error('Invalid token:', err);
-            return res.status(403).json({ success: false, message: 'Invalid token' });
-        }
-        const user = await User.findById(decoded.userId);
-        if (user) {
-            res.json({
-                pigs: user.pigs,
-                coins: user.coins,
-                guilds: user.guilds,
-                playerGuild: user.playerGuild,
-                marketplace: user.marketplace
-            });
-        } else {
-            res.json({ success: false, message: 'User not found!' });
-        }
-    });
-});
-
 // API สำหรับการดูอันดับ
 app.get('/api/leaderboard', async (req, res) => {
     const leaderboard = await User.find().sort({ coins: -1 }).limit(10).select('username coins');
@@ -163,4 +124,75 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+});
+
+// API สำหรับดึงข้อมูลเกม
+app.post('/api/getGameData', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) return res.status(401).json({ success: false, message: 'Unauthorized' });
+
+    jwt.verify(token, JWT_SECRET, async (err, decoded) => {
+        if (err) {
+            console.error('Invalid token:', err);
+            return res.status(403).json({ success: false, message: 'Invalid token' });
+        }
+
+        try {
+            const user = await User.findById(decoded.userId);
+            if (user) {
+                res.json({ 
+                    success: true,
+                    pigs: user.pigs,
+                    coins: user.coins,
+                    guilds: user.guilds,
+                    playerGuild: user.playerGuild,
+                    marketplace: user.marketplace
+                });
+            } else {
+                res.json({ success: false, message: 'User not found' });
+            }
+        } catch (error) {
+            console.error('Error fetching game data:', error);
+            res.json({ success: false, message: 'Error fetching game data.' });
+        }
+    });
+});
+
+// เพิ่ม Route สำหรับการจัดการต่างๆ ของเกม
+
+// Route สำหรับการสร้างหมู (Pig)
+app.post('/api/raisePig', (req, res) => {
+    // Logic สำหรับการสร้าง Pig
+    res.json({ success: true, newPig: { type: req.body.pigType, coinsPerSecond: 1, strength: 5 } });
+});
+
+// Route สำหรับการสร้าง Guild
+app.post('/api/createGuild', (req, res) => {
+    // Logic สำหรับการสร้าง Guild
+    res.json({ success: true, guildName: req.body.guildName });
+});
+
+// Route สำหรับการเข้าร่วม Guild
+app.post('/api/joinGuild', (req, res) => {
+    // Logic สำหรับการเข้าร่วม Guild
+    res.json({ success: true, guildName: req.body.guildName });
+});
+
+// Route สำหรับการมีส่วนร่วมใน Guild Quest
+app.post('/api/contributeToGuildQuest', (req, res) => {
+    // Logic สำหรับการมีส่วนร่วมใน Guild Quest
+    res.json({ success: true });
+});
+
+// Route สำหรับการเปลี่ยนฤดูกาลในเกม
+app.post('/api/changeSeason', (req, res) => {
+    // Logic สำหรับการเปลี่ยนฤดูกาล
+    res.json({ success: true, newSeason: "Winter" });
+});
+
+// Route สำหรับการขายไอเทมในตลาดกลาง
+app.post('/api/sellItem', (req, res) => {
+    // Logic สำหรับการขาย Item
+    res.json({ success: true });
 });
