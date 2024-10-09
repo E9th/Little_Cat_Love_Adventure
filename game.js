@@ -43,6 +43,10 @@ async function registerUser() {
 async function loginUser() {
     const username = prompt('Enter your username:');
     const password = prompt('Enter your password:');
+    if (!username || !password) {
+        alert('Please enter both username and password.');
+        return;
+    }
     const response = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -51,27 +55,23 @@ async function loginUser() {
     const data = await response.json();
     if (data.success) {
         token = data.token;
-        userId = data.userId;
         alert('Login successful!');
-        loadGameData();
+        loadGameData(); // โหลดข้อมูลเกมหลังจาก login สำเร็จ
     } else {
         alert(data.message);
     }
 }
 
+// API สำหรับดึงข้อมูลเกม
 async function loadGameData() {
     const response = await fetch('/api/getGameData', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ token: yourToken }) // ให้แน่ใจว่า token ไม่เป็น undefined
-})
-.then(response => response.json())
-.then(data => {
-    console.log("Game Data:", data); // ตรวจสอบข้อมูลที่ได้รับ
-})
-.catch(error => console.error("Error:", error));
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    const data = await response.json();
     if (data.success) {
         pigs = data.pigs;
         coins = data.coins;
@@ -107,7 +107,10 @@ async function saveGame() {
 
 function updatePigs() {
     let pigListHTML = pigs.map((pig, index) =>
-        `<li>Pig #${index + 1}: ${pig.type} - Coins/sec: ${pig.coinsPerSecond}, Strength: ${pig.strength}</li>`
+        `<li>
+            <img src="pig-icon.png" alt="Pig Image" class="pig-icon" />
+            Pig #${index + 1}: ${pig.type} - Coins/sec: ${pig.coinsPerSecond}, Strength: ${pig.strength}
+        </li>`
     ).join('');
     document.getElementById('pigList').innerHTML = pigListHTML;
 }
@@ -295,4 +298,3 @@ async function loadLeaderboard() {
     }
     await loginUser();
 })();
-
