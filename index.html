@@ -10,13 +10,13 @@
     <div class="container">
         <h1>Pig Farm Game</h1>
 
-        <div id="auth">
-            <button onclick="loginUser()">Login</button>
-            <button onclick="registerUser()">Register</button>
+        <!-- แสดงข้อมูลผู้เล่นและจำนวนเหรียญ -->
+        <div id="player-info" class="info-panel">
+            <p>Coins: <span id="coinCount">0</span></p>
         </div>
 
-        <!-- ฟาร์ม -->
-        <div id="farm" style="display:none;">
+        <!-- ระบบฟาร์ม -->
+        <div id="farm" class="game-section" style="display:none;">
             <h2>Your Farm</h2>
             <ul id="pigList"></ul>
             <button onclick="raisePig('Economy')">Raise Economy Pig</button>
@@ -24,7 +24,7 @@
         </div>
 
         <!-- ระบบพันธมิตร -->
-        <div id="guild" style="display:none;">
+        <div id="guild" class="game-section" style="display:none;"></div>
             <h2>Guild</h2>
             <button onclick="createGuild(prompt('Enter guild name:'))">Create Guild</button>
             <button onclick="joinGuild(prompt('Enter guild name:'))">Join Guild</button>
@@ -32,34 +32,45 @@
         </div>
 
         <!-- สนามประลอง -->
-        <div id="arena" style="display:none;">
+        <div id="arena" class="game-section" style="display:none;">
             <h2>Pig Battle Arena</h2>
             <button onclick="battlePigs(0, 1)">Start Battle</button>
+            <div id="battleResult"></div>
         </div>
 
         <!-- สภาพอากาศ -->
-        <div id="weather" style="display:none;">
+        <div id="weather" class="game-section" style="display:none;">
             <h2>Weather & Seasons</h2>
             <button onclick="changeSeason()">Change Season</button>
+            <p id="currentSeason">Current Season: Spring</p>
         </div>
 
         <!-- ตลาดกลาง -->
-        <div id="marketplace" style="display:none;">
+        <div id="marketplace" class="game-section" style="display:none;">
             <h2>Marketplace</h2>
             <ul id="marketList"></ul>
-            <button onclick="sellItem(pigs[0], 500)">Sell Pig</button>
+            <div class="item-details">
+                <p>Select an item to see its details</p>
+                <button onclick="sellItem(pigs[0], 500)">Sell Pig</button>
+                <button onclick="buyItem()">Buy</button>
+            </div>
         </div>
 
         <!-- ระบบเควสต์ -->
-        <div id="quests" style="display:none;">
+        <div id="quests" class="game-section" style="display:none;">
             <h2>Quests</h2>
             <ul id="questList"></ul>
         </div>
 
         <!-- ระบบจัดอันดับผู้เล่น -->
-        <div id="leaderboard" style="display:none;">
+        <div id="leaderboard" class="game-section" style="display:none;">
             <h2>Leaderboard</h2>
             <ul id="leaderboardList"></ul>
+        </div>
+
+        <div id="auth">
+            <button onclick="loginUser()">Login</button>
+            <button onclick="registerUser()">Register</button>
         </div>
 
     </div>
