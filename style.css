@@ -3,109 +3,152 @@ body {
     background-color: #f0f0f0;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
 }
 
 .container {
-    text-align: center;
-    padding: 20px;
-    max-width: 600px;
-    width: 100%;
-    box-sizing: border-box;
+    width: 90%;
+    margin: 0 auto;
 }
 
-h1, h2 {
-    color: #333;
-    margin: 10px 0;
-}
-
-button {
-    padding: 15px 20px;
-    margin: 10px;
-    font-size: 18px;
-    cursor: pointer;
+.header {
     background-color: #4CAF50;
     color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+.button {
+    background-color: #008CBA; /* Blue */
     border: none;
-    border-radius: 10px;
-    width: 80%;
-}
-
-button:hover {
-    background-color: #45a049;
-}
-
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-li {
-    margin: 5px 0;
-    font-size: 16px;
-}
-
-.item-details {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin-top: 15px;
-    background-color: #fff;
-}
-.item-details p {
-    color: #333;
-    font-size: 14px;
-}
-
-.notification {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #333;
     color: white;
-    padding: 10px;
+    padding: 10px 20px; /* ขยายพื้นที่กด */
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 5px 2px;
+    cursor: pointer;
+    border-radius: 12px;
+}
+
+.button:hover {
+    background-color: #005f6b;
+}
+
+.frame-20 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 15px 0; /* ปรับระยะห่าง */
+    flex-wrap: wrap; /* ทำให้เลย์เอาต์มีความยืดหยุ่น */
+}
+
+.text-wrapper-8 {
+    font-size: 18px; /* ปรับขนาดฟอนต์ */
+    font-weight: bold;
+}
+
+.image-2 {
+    width: 80px; /* ปรับขนาดให้เล็กลงสำหรับมือถือ */
+    height: auto;
+}
+
+.frame-23 {
+    text-align: center;
+    margin-top: 15px; /* ปรับระยะห่าง */
+}
+
+.progress-bar {
+    background-color: #ddd;
     border-radius: 5px;
-    opacity: 1;
-    transition: opacity 1s ease-in-out;
+    overflow: hidden;
+    height: 20px;
+    width: 100%;
 }
 
-.notification.fade {
-    opacity: 0;
+.progress-bar-fill {
+    background-color: #4CAF50;
+    height: 100%;
 }
 
+.leaderboard {
+    background-color: white;
+    padding: 10px; /* ปรับขนาด padding */
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.player {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0; /* ปรับ padding */
+    border-bottom: 1px solid #ddd;
+}
+
+.player:last-child {
+    border-bottom: none;
+}
+
+/* CSS สำหรับจัดการกับพื้นหลัง */
+.backgroundscene-pop {
+    background-image: url('img/background.png');
+    background-size: cover;
+    height: 100vh;
+    position: relative;
+}
+
+/* เพิ่มสไตล์ใหม่สำหรับข้อมูลสัตว์เลี้ยง */
+.frame-25 {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px; /* ปรับระยะห่าง */
+    flex-wrap: wrap; /* ทำให้เลย์เอาต์มีความยืดหยุ่น */
+}
+
+.frame-26,
+.frame-27,
+.frame-28,
+.frame-29,
+.frame-30 {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 8px; /* ปรับขนาด padding */
+    flex: 1 1 45%; /* ปรับให้มีความยืดหยุ่น */
+    margin: 5px; /* เพิ่มระยะห่าง */
+}
+
+.text-wrapper-16 {
+    font-weight: bold;
+}
+
+.text-wrapper-17 {
+    font-size: 12px; /* ปรับขนาดฟอนต์ */
+}
+
+/* สไตล์สำหรับ UI อื่น ๆ */
+.text-wrapper-6,
+.text-wrapper-8,
+.text-wrapper-10,
+.text-wrapper-12 {
+    font-size: 16px; /* ปรับขนาดฟอนต์ */
+    margin-bottom: 5px;
+}
+
+.image-3 {
+    width: 120px; /* ปรับขนาดให้เล็กลงสำหรับมือถือ */
+    height: auto;
+}
+
+/* Media Queries สำหรับหน้าจอเล็ก */
 @media (max-width: 768px) {
-    h1 {
-        font-size: 24px;
+    .frame-20,
+    .frame-25 {
+        flex-direction: column; /* เปลี่ยนการจัดวางเป็นแนวตั้ง */
+        align-items: center; /* จัดกึ่งกลาง */
     }
 
-    h2 {
-        font-size: 20px;
-    }
-
-    button {
-        font-size: 16px;
-        padding: 12px;
-        margin: 8px;
+    .button {
+        width: 100%; /* ทำให้ปุ่มกว้างเต็มที่ */
     }
 }
-
-@media (max-width: 480px) {
-    h1 {
-        font-size: 20px;
-    }
-
-    h2 {
-        font-size: 18px;
-    }
-
-    button {
-        font-size: 14px;
-        padding: 10px;
-        margin: 6px;
-        width: 90%;
-    }
-}
-
