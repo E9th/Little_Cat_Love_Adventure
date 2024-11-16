@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Little Cat Love Adventure</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f8ff;
+            font-family: Arial, sans-serif;
+        }
+
+        .game-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            background: linear-gradient(#a0e4f0, #f0fff0);
+            border: 2px solid #333;
+            overflow: hidden;
+        }
+
+        .cat {
+            position: absolute;
+            bottom: 50px;
+            left: 50px;
+            width: 100px;
+            height: 100px;
+            background: pink;
+            border-radius: 50%;
+        }
+
+        .ear {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: pink;
+            border-radius: 50%;
+        }
+
+        .ear-left {
+            top: -15px;
+            left: -10px;
+            transform: rotate(-30deg);
+        }
+
+        .ear-right {
+            top: -15px;
+            right: -10px;
+            transform: rotate(30deg);
+        }
+
+        .face {
+            position: relative;
+        }
+
+        .eye {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .eye-left {
+            left: 20px;
+            top: 35px;
+        }
+
+        .eye-right {
+            right: 20px;
+            top: 35px;
+        }
+
+        .nose {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 10px;
+            background: brown;
+            border-radius: 50%;
+        }
+
+        .flower {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: pink;
+            border-radius: 50%;
+            bottom: 150px;
+            left: 300px;
+        }
+
+        .rock {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #8b4513;
+            border-radius: 50%;
+            bottom: 100px;
+            right: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="cat" id="cat">
+            <div class="ear ear-left"></div>
+            <div class="ear ear-right"></div>
+            <div class="face">
+                <div class="eye eye-left"></div>
+                <div class="eye eye-right"></div>
+                <div class="nose"></div>
+            </div>
+        </div>
+        <div class="flower" id="flower"></div>
+        <div class="rock" id="rock"></div>
+    </div>
+    <script>
+        document.addEventListener('keydown', function(event) {
+            const cat = document.getElementById('cat');
+            let left = parseInt(window.getComputedStyle(cat).getPropertyValue('left'));
+            switch(event.key) {
+                case 'ArrowLeft':
+                    if (left > 0) {
+                        cat.style.left = left - 10 + 'px';
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (left < 700) {
+                        cat.style.left = left + 10 + 'px';
+                    }
+                    break;
+                case 'ArrowUp':
+                    cat.style.bottom = '150px';
+                    setTimeout(() => {
+                        cat.style.bottom = '50px';
+                    }, 300);
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>
