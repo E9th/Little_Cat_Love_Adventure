@@ -67,7 +67,7 @@
         .cat {
             position: absolute;
             bottom: 20px;
-            left: 270px; /* เริ่มที่คอลัมน์กลาง */
+            left: 270px;
             width: 120px;
             height: 120px;
             background: url('cute_cat_character.png') no-repeat center; 
@@ -76,6 +76,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             transition: left 0.2s ease;
         }
+
         .obstacle {
             position: absolute;
             width: 100px;
@@ -85,7 +86,6 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             border-radius: 50%;
             top: -120px;
-            animation: moveObstacle 5s linear infinite;
         }
 
         .coin {
@@ -96,7 +96,6 @@
             background-size: cover; 
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             top: -40px;
-            animation: moveCoin 6s linear infinite;
         }
 
         .score-board {
@@ -134,7 +133,6 @@
             border: none;
             cursor: pointer;
             border-radius: 10px;
-            z-index: 10;
         }
 
         .pause-button {
@@ -148,16 +146,6 @@
             cursor: pointer;
             border-radius: 10px;
             display: none;
-        }
-
-        @keyframes moveObstacle {
-            0% { top: -120px; }
-            100% { top: 600px; }
-        }
-
-        @keyframes moveCoin {
-            0% { top: -80px; }
-            100% { top: 600px; }
         }
     </style>
 </head>
@@ -194,16 +182,13 @@
             let gameInterval;
             let isGamePaused = false;
             let speed = 5;
+            let currentCoinLane = Math.floor(Math.random() * lanes.length); // คอลัมน์ของเหรียญ
+            let currentObstacleLane = Math.floor(Math.random() * lanes.length); // คอลัมน์ของหิน
             let elapsedTime = 0;
             let timerInterval;
-            const lanes = [40, 340, 640]; // กำหนดคอลัมน์
-            const gutter = 20;
-
-            let currentObstacleLane = Math.floor(Math.random() * lanes.length); // คอลัมน์ที่หินเริ่มต้น
-            let currentCoinLane = Math.floor(Math.random() * lanes.length); // คอลัมน์ที่เหรียญเริ่มต้น
+            const lanes = [40, 340, 640]; // คอลัมน์ที่มีให้เลือก
 
             startButton.addEventListener('click', () => {
-                console.log("Start button clicked!");
                 isGamePaused = false;
                 startGame();
             });
@@ -231,103 +216,78 @@
                 }
             }
 
-            function startTimer() {
-                timerInterval = setInterval(() => {
-                    elapsedTime++;
-                    const minutes = Math.floor(elapsedTime / 60);
-                    const seconds = elapsedTime % 60;
-                    timerBoard.textContent = `Time: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-                }, 1000);
-            }
-
-            document.addEventListener('keydown', (event) => {
-                const currentLane = lanes.indexOf(parseFloat(cat.style.left));
-                if (event.key === 'ArrowLeft' && currentLane > 0) {
-                    cat.style.left = lanes[currentLane - 1] + 'px';
-                } else if (event.key === 'ArrowRight' && currentLane < lanes.length - 1) {
-                    cat.style.left = lanes[currentLane + 1] + 'px';
-                } else if (event.key === ' ' && !isJumping) {
-                    isJumping = true;
-                    cat.style.transition = 'none';
-                    cat.style.bottom = '200px';
-                    jumpSound.play();
-                    setTimeout(() => {
-                        cat.style.transition = 'bottom 0.5s ease';
-                        cat.style.bottom = '20px';
-                        isJumping = false;
-                    }, 500);
-                }
-            });
-
-            function gameLoop() {
-                if (isGamePaused) return;
-                moveObstacles();
-                moveCoins();
-                checkCollisions();
-                scoreBoard.textContent = `Score: ${score}`;
-                livesBoard.textContent = `Lives: ${lives}`;
-                gameInterval = requestAnimationFrame(gameLoop);
-            }
-
-            function moveObstacles() {
+            // ฟังก์ชั่นเคลื่อนที่ของเหรียญและหิน
+            function moveObstaclesAndCoins() {
+                // เคลื่อนที่หิน
                 const obstacles = document.querySelectorAll('.obstacle');
                 obstacles.forEach(obstacle => {
                     let top = parseFloat(obstacle.style.top);
-                    if (top >= 600) {
+                    if (top >= 600) { // หินถึงด้านล่างแล้ว
                         obstacle.style.top = '-100px';
-                        obstacle.style.left = lanes[currentObstacleLane] + 'px';
-                        currentObstacleLane = Math.floor(Math.random() * lanes.length); // รีเซ็ตคอลัมน์หินใหม่
+                        obstacle.style.left = lanes[currentObstacleLane] + 'px'; // รีเซ็ตคอลัมน์หิน
+                        currentObstacleLane = Math.floor(Math.random() * lanes.length); // สุ่มคอลัมน์ใหม่
                     } else {
                         obstacle.style.top = top + speed + 'px';
                     }
                 });
-            }
 
-            function moveCoins() {
+                // เคลื่อนที่เหรียญ
                 const coins = document.querySelectorAll('.coin');
                 coins.forEach(coin => {
                     let top = parseFloat(coin.style.top);
-                    if (top >= 600) {
+                    if (top >= 600) { // เหรียญถึงด้านล่างแล้ว
                         coin.style.top = '-80px';
-                        coin.style.left = lanes[currentCoinLane] + 'px';
-                        currentCoinLane = Math.floor(Math.random() * lanes.length); // รีเซ็ตคอลัมน์เหรียญใหม่
+                        coin.style.left = lanes[currentCoinLane] + 'px'; // รีเซ็ตคอลัมน์เหรียญ
+                        currentCoinLane = Math.floor(Math.random() * lanes.length); // สุ่มคอลัมน์ใหม่
                     } else {
                         coin.style.top = top + speed + 'px';
                     }
                 });
             }
 
+            // ฟังก์ชั่นตรวจจับการชน
             function checkCollisions() {
-    const catRect = cat.getBoundingClientRect();
-    
-    // ตรวจจับการชนกับหิน
-    const obstacles = document.querySelectorAll('.obstacle');
-    obstacles.forEach(obstacle => {
-        const obstacleRect = obstacle.getBoundingClientRect();
-        if (catRect.left < obstacleRect.right &&
-            catRect.right > obstacleRect.left &&
-            catRect.top < obstacleRect.bottom &&
-            catRect.bottom > obstacleRect.top) {
-            gameOver();
-        }
-    });
+                const catRect = cat.getBoundingClientRect();
+                
+                // ตรวจจับการชนกับหิน
+                const obstacles = document.querySelectorAll('.obstacle');
+                obstacles.forEach(obstacle => {
+                    const obstacleRect = obstacle.getBoundingClientRect();
+                    if (catRect.left < obstacleRect.right &&
+                        catRect.right > obstacleRect.left &&
+                        catRect.top < obstacleRect.bottom &&
+                        catRect.bottom > obstacleRect.top) {
+                        gameOver();
+                    }
+                });
 
-    // ตรวจจับการชนกับเหรียญ
-    const coins = document.querySelectorAll('.coin');
-    coins.forEach(coin => {
-        const coinRect = coin.getBoundingClientRect();
-        if (catRect.left < coinRect.right &&
-            catRect.right > coinRect.left &&
-            catRect.top < coinRect.bottom &&
-            catRect.bottom > coinRect.top) {
-            score++; // เพิ่มคะแนน
-            coin.style.top = '-80px'; // ย้ายเหรียญขึ้นไปนอกจอ
-            coin.style.left = lanes[currentCoinLane] + 'px'; // เปลี่ยนคอลัมน์เหรียญ
-            coinSound.play(); // เล่นเสียงเหรียญ
-        }
-    });
-}
-            
+                // ตรวจจับการชนกับเหรียญ
+                const coins = document.querySelectorAll('.coin');
+                coins.forEach(coin => {
+                    const coinRect = coin.getBoundingClientRect();
+                    if (catRect.left < coinRect.right &&
+                        catRect.right > coinRect.left &&
+                        catRect.top < coinRect.bottom &&
+                        catRect.bottom > coinRect.top) {
+                        score++; // เพิ่มคะแนน
+                        coin.style.top = '-80px'; // ย้ายเหรียญขึ้นไปนอกจอ
+                        coin.style.left = lanes[currentCoinLane] + 'px'; // รีเซ็ตคอลัมน์เหรียญ
+                        coinSound.play(); // เล่นเสียงเหรียญ
+                    }
+                });
+            }
+
+            // ฟังก์ชั่นทำงานเกมหลัก
+            function gameLoop() {
+                if (isGamePaused) return;
+                moveObstaclesAndCoins();
+                checkCollisions();
+                scoreBoard.textContent = `Score: ${score}`;
+                livesBoard.textContent = `Lives: ${lives}`;
+                gameInterval = requestAnimationFrame(gameLoop);
+            }
+
+            // ฟังก์ชั่นเกมโอเวอร์
             function gameOver() {
                 lives--;
                 if (lives <= 0) {
@@ -336,6 +296,7 @@
                 }
             }
 
+            // ฟังก์ชั่นรีเซ็ตเกม
             function resetGame() {
                 score = 0;
                 lives = 3;
@@ -356,6 +317,36 @@
                     coin.style.top = '-80px';
                 });
             }
+
+            // เริ่มเกม
+            function startTimer() {
+                timerInterval = setInterval(() => {
+                    elapsedTime++;
+                    const minutes = Math.floor(elapsedTime / 60);
+                    const seconds = elapsedTime % 60;
+                    timerBoard.textContent = `Time: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                }, 1000);
+            }
+
+            // ฟังก์ชั่นควบคุมตัวละคร
+            document.addEventListener('keydown', (event) => {
+                const currentLane = lanes.indexOf(parseFloat(cat.style.left));
+                if (event.key === 'ArrowLeft' && currentLane > 0) {
+                    cat.style.left = lanes[currentLane - 1] + 'px';
+                } else if (event.key === 'ArrowRight' && currentLane < lanes.length - 1) {
+                    cat.style.left = lanes[currentLane + 1] + 'px';
+                } else if (event.key === ' ' && !isJumping) {
+                    isJumping = true;
+                    cat.style.transition = 'none';
+                    cat.style.bottom = '200px';
+                    jumpSound.play();
+                    setTimeout(() => {
+                        cat.style.transition = 'bottom 0.5s ease';
+                        cat.style.bottom = '20px';
+                        isJumping = false;
+                    }, 500);
+                }
+            });
         });
     </script>
 </body>
