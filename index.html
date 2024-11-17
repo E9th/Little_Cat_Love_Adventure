@@ -255,7 +255,7 @@
                     obstacle.style.left = randomLane + 'px';
                     obstacle.style.top = '-120px';
                 } else {
-                    obstacle.style.top = parseInt(obstacle.style.top) + 5 + 'px';
+                    obstacle.style.top = (parseInt(obstacle.style.top) || -120) + 5 + 'px';
                 }
 
                 if (checkCollision(cat, obstacle)) {
@@ -278,7 +278,7 @@
                 if (coin.getBoundingClientRect().top >= gameContainer.clientHeight) {
                     resetCoin();
                 } else {
-                    coin.style.top = parseInt(coin.style.top) + 5 + 'px';
+                    coin.style.top = (parseInt(coin.style.top) || -80) + 5 + 'px';
                 }
 
                 if (checkCollision(cat, coin)) {
