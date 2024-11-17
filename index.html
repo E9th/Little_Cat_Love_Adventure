@@ -226,10 +226,8 @@
                 }
             }
 
-            function startTimer() {
-                timerInterval = setInterval(() => {
-                    if (!isGamePaused) {
-                        elapsedTime++;
+            $1
+                        speed += 0.2;
                         const minutes = Math.floor(elapsedTime / 60);
                         const seconds = elapsedTime % 60;
                         timerBoard.textContent = `Time: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
@@ -299,7 +297,7 @@
                 if (obstacle.getBoundingClientRect().top < gameContainer.clientHeight - obstacle.clientHeight) {
                     if (checkCollision(cat, obstacle)) {
                     gameOverSound.play();
-                    lives--;
+                    lives = Math.max(0, lives - 1);
                     livesBoard.textContent = 'Lives: ' + lives;
                     obstacle.style.top = '-120px';
                     if (lives <= 0) {
