@@ -106,10 +106,44 @@
             position: absolute;
             width: 40px;
             height: 40px;
-            background: gold;
-            border-radius: 50%;
+            background: url('AlbedoBase_XL_Design_a_shiny_golden_coin_for_a_mobile_game_sim_0.png') no-repeat center;
+            background-size: cover;
             top: -40px;
             animation: moveCoin 6s linear infinite;
+        }
+
+        .score-board {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .start-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px 30px;
+            font-size: 24px;
+            background-color: #ffcc00;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+        }
+
+        .pause-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #ff6666;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            display: none;
         }
 
         @keyframes moveObstacle {
@@ -125,6 +159,9 @@
 </head>
 <body>
     <div class="game-container">
+        <div class="score-board" id="score-board">Score: 0</div>
+        <button class="start-button" id="start-button">Start Game</button>
+        <button class="pause-button" id="pause-button">Pause</button>
         <div class="cat" id="cat">
             <div class="ear ear-left"></div>
             <div class="ear ear-right"></div>
@@ -137,14 +174,47 @@
         <div class="obstacle" id="obstacle"></div>
         <div class="coin" id="coin"></div>
     </div>
+    <audio id="coin-sound" src="https://www.soundjay.com/button/beep-07.mp3" preload="auto"></audio>
+    <audio id="jump-sound" src="https://www.soundjay.com/button/button-4.mp3" preload="auto"></audio>
+    <audio id="game-over-sound" src="https://www.soundjay.com/button/beep-10.mp3" preload="auto"></audio>
     <script>
         const cat = document.getElementById('cat');
         const gameContainer = document.querySelector('.game-container');
         const coin = document.getElementById('coin');
+        const scoreBoard = document.getElementById('score-board');
+        const startButton = document.getElementById('start-button');
+        const pauseButton = document.getElementById('pause-button');
+        const coinSound = document.getElementById('coin-sound');
+        const jumpSound = document.getElementById('jump-sound');
+        const gameOverSound = document.getElementById('game-over-sound');
         let isJumping = false;
         let score = 0;
+        let gameInterval;
+        let isGamePaused = false;
+
+        startButton.addEventListener('click', startGame);
+        pauseButton.addEventListener('click', togglePause);
+
+        function startGame() {
+            startButton.style.display = 'none';
+            pauseButton.style.display = 'block';
+            gameInterval = setInterval(gameLoop, 100);
+        }
+
+        function togglePause() {
+            if (isGamePaused) {
+                gameInterval = setInterval(gameLoop, 100);
+                pauseButton.textContent = 'Pause';
+                isGamePaused = false;
+            } else {
+                clearInterval(gameInterval);
+                pauseButton.textContent = 'Resume';
+                isGamePaused = true;
+            }
+        }
 
         document.addEventListener('keydown', function(event) {
+            if (isGamePaused) return;
             const catLeft = parseInt(window.getComputedStyle(cat).getPropertyValue('left'));
             if (event.key === 'ArrowLeft' && catLeft > 0) {
                 cat.style.left = catLeft - 100 + 'px';
@@ -157,6 +227,7 @@
 
         function jump() {
             isJumping = true;
+            jumpSound.play();
             let count = 0;
             let catBottom = parseInt(window.getComputedStyle(cat).getPropertyValue('bottom'));
             const jumpInterval = setInterval(() => {
@@ -179,13 +250,15 @@
             const elementRect = element.getBoundingClientRect();
             return !(
                 catRect.right < elementRect.left ||
-                catRect.left > elementRect.right ||
-                catRect.bottom < elementRect.top ||
+                catRect.left > elementRect.right
+                || catRect.bottom < elementRect.top ||
                 catRect.top > elementRect.bottom
             );
         }
 
-        setInterval(() => {
+        function gameLoop() {
+            if (isGamePaused) return;
+
             const obstacle = document.getElementById('obstacle');
 
             // Randomize obstacle lane
@@ -196,10 +269,11 @@
             }
 
             if (checkCollision(cat, obstacle)) {
+                gameOverSound.play();
                 alert('Game Over! Your score: ' + score);
                 window.location.reload();
             }
-        }, 100);
+        }
 
         setInterval(() => {
             // Randomize coin lane
@@ -211,18 +285,14 @@
 
             if (checkCollision(cat, coin)) {
                 score += 10;
+                scoreBoard.textContent = 'Score: ' + score;
                 coin.style.display = 'none';
+                coinSound.play();
                 setTimeout(() => {
                     coin.style.display = 'block';
                 }, 1000);
             }
         }, 100);
-
-        // Increase game speed over time
-        setInterval(() => {
-            const currentAnimationDuration = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--animation-duration') || '5');
-            document.documentElement.style.setProperty('--animation-duration', (currentAnimationDuration * 0.95) + 's');
-        }, 5000);
     </script>
 </body>
 </html>
