@@ -254,6 +254,8 @@
                     const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
                     obstacle.style.left = randomLane + 'px';
                     obstacle.style.top = '-120px';
+                } else {
+                    obstacle.style.top = parseInt(obstacle.style.top) + 5 + 'px';
                 }
 
                 if (checkCollision(cat, obstacle)) {
@@ -275,6 +277,8 @@
             function updateCoin() {
                 if (coin.getBoundingClientRect().top >= gameContainer.clientHeight) {
                     resetCoin();
+                } else {
+                    coin.style.top = parseInt(coin.style.top) + 5 + 'px';
                 }
 
                 if (checkCollision(cat, coin)) {
