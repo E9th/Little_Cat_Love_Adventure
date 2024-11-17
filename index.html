@@ -33,10 +33,6 @@
             0% { background-position: 0 0; }
             100% { background-position: 0 -1200px; }
         }
-            100% { background-position: -1600px 0; }
-        }
-            100% { background-position: -800px 0; }
-        }
 
         .cat {
             position: absolute;
@@ -159,12 +155,12 @@
 
         @keyframes moveObstacle {
             0% { top: -120px; }
-            100% { top: 1200px; }
+            100% { top: 600px; }
         }
 
         @keyframes moveCoin {
             0% { top: -80px; }
-            100% { top: 1200px; }
+            100% { top: 600px; }
         }
     </style>
 </head>
@@ -277,7 +273,7 @@
                 const lanes = [100, 300, 500];
                 const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
                 obstacle.style.left = randomLane + 'px';
-                obstacle.style.top = '-60px';
+                obstacle.style.top = '-120px';
                 return; // Avoid collision detection after resetting
             }
 
@@ -294,7 +290,7 @@
                 const lanes = [50, 250, 450, 650];
                 const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
                 coin.style.left = randomLane + 'px';
-                coin.style.top = '-40px';
+                coin.style.top = '-80px';
             }
 
             if (checkCollision(cat, coin)) {
