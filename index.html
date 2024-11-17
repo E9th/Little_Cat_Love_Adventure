@@ -22,9 +22,16 @@
             position: relative;
             width: 800px;
             height: 600px;
-            background: linear-gradient(#a0e4f0, #f0fff0);
             border: 2px solid #333;
             overflow: hidden;
+            background-image: url('background-image.jpg');
+            background-size: cover;
+            animation: moveBackground 10s linear infinite;
+        }
+
+        @keyframes moveBackground {
+            0% { background-position: 0 0; }
+            100% { background-position: -800px 0; }
         }
 
         .cat {
@@ -96,7 +103,7 @@
             position: absolute;
             width: 60px;
             height: 60px;
-            background: #8b4513;
+            background: url('AlbedoBase_XL_just_little_stone_2.png') no-repeat center; background-size: cover;
             border-radius: 50%;
             top: -60px;
             animation: moveObstacle 5s linear infinite;
@@ -174,9 +181,9 @@
         <div class="obstacle" id="obstacle"></div>
         <div class="coin" id="coin"></div>
     </div>
-    <audio id="coin-sound" src="https://www.soundjay.com/button/beep-07.mp3" preload="auto"></audio>
+    <audio id="coin-sound" src="coin-257878.mp3" preload="auto"></audio>
     <audio id="jump-sound" src="https://www.soundjay.com/button/button-4.mp3" preload="auto"></audio>
-    <audio id="game-over-sound" src="https://www.soundjay.com/button/beep-10.mp3" preload="auto"></audio>
+    <audio id="game-over-sound" src="small-rock-break-194553.mp3" preload="auto"></audio>
     <script>
         const cat = document.getElementById('cat');
         const gameContainer = document.querySelector('.game-container');
@@ -250,8 +257,8 @@
             const elementRect = element.getBoundingClientRect();
             return !(
                 catRect.right < elementRect.left ||
-                catRect.left > elementRect.right
-                || catRect.bottom < elementRect.top ||
+                catRect.left > elementRect.right ||
+                catRect.bottom < elementRect.top ||
                 catRect.top > elementRect.bottom
             );
         }
@@ -261,11 +268,12 @@
 
             const obstacle = document.getElementById('obstacle');
 
-            // Randomize obstacle lane
+            // Randomize obstacle lane and reset position if it reaches the bottom
             if (obstacle.getBoundingClientRect().top >= gameContainer.clientHeight) {
                 const lanes = [100, 300, 500];
                 const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
                 obstacle.style.left = randomLane + 'px';
+                obstacle.style.top = '-60px';
             }
 
             if (checkCollision(cat, obstacle)) {
@@ -281,6 +289,7 @@
                 const lanes = [50, 250, 450, 650];
                 const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
                 coin.style.left = randomLane + 'px';
+                coin.style.top = '-40px';
             }
 
             if (checkCollision(cat, coin)) {
