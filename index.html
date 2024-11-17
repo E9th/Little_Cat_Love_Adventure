@@ -13,16 +13,16 @@
                 border: none;
             }
             .cat {
-                width: 40px;
-                height: 40px;
-            }
-            .obstacle {
                 width: 30px;
                 height: 30px;
             }
-            .coin {
+            .obstacle {
                 width: 25px;
                 height: 25px;
+            }
+            .coin {
+                width: 15px;
+                height: 15px;
             }
             .score-board {
                 font-size: 20px;
@@ -108,6 +108,22 @@
             color: #333;
         }
 
+        .lives-board {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .timer-board {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            font-size: 24px;
+            color: #333;
+        }
+
         .start-button {
             position: absolute;
             top: 50%;
@@ -148,6 +164,8 @@
 <body>
     <div class="game-container">
         <div class="score-board" id="score-board">Score: 0</div>
+        <div class="lives-board" id="lives-board">Lives: 3</div>
+        <div class="timer-board" id="timer-board">Time: 0:00</div>
         <button class="start-button" id="start-button">Start Game</button>
         <button class="pause-button" id="pause-button">Pause</button>
         <div class="cat" id="cat"></div>
@@ -163,6 +181,8 @@
             const gameContainer = document.querySelector('.game-container');
             const coin = document.getElementById('coin');
             const scoreBoard = document.getElementById('score-board');
+            const livesBoard = document.getElementById('lives-board');
+            const timerBoard = document.getElementById('timer-board');
             const startButton = document.getElementById('start-button');
             const pauseButton = document.getElementById('pause-button');
             const coinSound = document.getElementById('coin-sound');
@@ -170,8 +190,12 @@
             const gameOverSound = document.getElementById('game-over-sound');
             let isJumping = false;
             let score = 0;
+            let lives = 3;
             let gameInterval;
             let isGamePaused = false;
+            let speed = 5;
+            let elapsedTime = 0;
+            let timerInterval;
 
             startButton.addEventListener('click', () => {
                 isGamePaused = false;
@@ -184,18 +208,32 @@
                 pauseButton.style.display = 'block';
                 isGamePaused = false;
                 gameInterval = requestAnimationFrame(gameLoop);
+                startTimer();
             }
 
             function togglePause() {
                 if (isGamePaused) {
                     gameInterval = requestAnimationFrame(gameLoop);
+                    startTimer();
                     pauseButton.textContent = 'Pause';
                     isGamePaused = false;
                 } else {
                     isGamePaused = true;
                     cancelAnimationFrame(gameInterval);
+                    clearInterval(timerInterval);
                     pauseButton.textContent = 'Resume';
                 }
+            }
+
+            function startTimer() {
+                timerInterval = setInterval(() => {
+                    if (!isGamePaused) {
+                        elapsedTime++;
+                        const minutes = Math.floor(elapsedTime / 60);
+                        const seconds = elapsedTime % 60;
+                        timerBoard.textContent = `Time: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    }
+                }, 1000);
             }
 
             document.addEventListener('keydown', function(event) {
@@ -254,18 +292,25 @@
                     const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
                     obstacle.style.left = randomLane + 'px';
                     obstacle.style.top = '-120px';
+                    speed += 0.5; // Increase speed to make the game more challenging
                 } else {
-                    obstacle.style.top = (parseInt(obstacle.style.top) || -120) + 5 + 'px';
+                    obstacle.style.top = (parseInt(obstacle.style.top) || -120) + speed + 'px';
                 }
 
                 // Only check collision when obstacle is above the bottom edge
                 if (obstacle.getBoundingClientRect().top < gameContainer.clientHeight - obstacle.clientHeight) {
                     if (checkCollision(cat, obstacle)) {
                         gameOverSound.play();
-                        setTimeout(() => {
-                            alert('Game Over! Your score: ' + score);
-                            window.location.reload();
-                        }, 100);
+                        lives--;
+                        livesBoard.textContent = 'Lives: ' + lives;
+                        if (lives <= 0) {
+                            setTimeout(() => {
+                                alert('Game Over! Your score: ' + score);
+                                window.location.reload();
+                            }, 100);
+                        } else {
+                            obstacle.style.top = '-120px';
+                        }
                     }
                 }
 
@@ -283,7 +328,7 @@
                 if (coin.getBoundingClientRect().top >= gameContainer.clientHeight) {
                     resetCoin();
                 } else {
-                    coin.style.top = (parseInt(coin.style.top) || -80) + 5 + 'px';
+                    coin.style.top = (parseInt(coin.style.top) || -80) + speed + 'px';
                 }
 
                 if (checkCollision(cat, coin)) {
