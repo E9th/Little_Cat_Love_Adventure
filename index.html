@@ -29,30 +29,31 @@
         .cat {
             position: absolute;
             bottom: 50px;
-            left: 50px;
-            width: 100px;
-            height: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
             background: pink;
             border-radius: 50%;
-            transition: all 0.2s ease;
+            transition: bottom 0.1s linear;
         }
 
         .ear {
             position: absolute;
-            width: 30px;
-            height: 30px;
+            width: 20px;
+            height: 20px;
             background: pink;
             border-radius: 50%;
         }
 
         .ear-left {
-            top: -15px;
+            top: -10px;
             left: -10px;
             transform: rotate(-30deg);
         }
 
         .ear-right {
-            top: -15px;
+            top: -10px;
             right: -10px;
             transform: rotate(30deg);
         }
@@ -63,65 +64,46 @@
 
         .eye {
             position: absolute;
-            width: 15px;
-            height: 15px;
+            width: 10px;
+            height: 10px;
             background: white;
             border-radius: 50%;
         }
 
         .eye-left {
-            left: 20px;
-            top: 35px;
+            left: 15px;
+            top: 20px;
         }
 
         .eye-right {
-            right: 20px;
-            top: 35px;
+            right: 15px;
+            top: 20px;
         }
 
         .nose {
             position: absolute;
-            top: 60px;
+            top: 40px;
             left: 50%;
             transform: translateX(-50%);
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             background: brown;
             border-radius: 50%;
         }
 
-        .flower {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: pink;
-            border-radius: 50%;
-            bottom: 150px;
-            left: 300px;
-            animation: moveFlower 5s infinite linear;
-        }
-
-        .rock {
+        .obstacle {
             position: absolute;
             width: 40px;
             height: 40px;
             background: #8b4513;
             border-radius: 50%;
-            bottom: 100px;
-            right: 200px;
-            animation: moveRock 4s infinite linear;
+            bottom: 50px;
+            animation: moveObstacle 3s infinite linear;
         }
 
-        @keyframes moveFlower {
-            0% { left: 300px; bottom: 150px; }
-            50% { left: 500px; bottom: 200px; }
-            100% { left: 300px; bottom: 150px; }
-        }
-
-        @keyframes moveRock {
-            0% { right: 200px; bottom: 100px; }
-            50% { right: 100px; bottom: 150px; }
-            100% { right: 200px; bottom: 100px; }
+        @keyframes moveObstacle {
+            0% { left: 800px; }
+            100% { left: -40px; }
         }
     </style>
 </head>
@@ -136,35 +118,36 @@
                 <div class="nose"></div>
             </div>
         </div>
-        <div class="flower" id="flower"></div>
-        <div class="rock" id="rock"></div>
+        <div class="obstacle" id="obstacle"></div>
     </div>
     <script>
+        const cat = document.getElementById('cat');
+        let catPosition = 0;
+        let isJumping = false;
+
         document.addEventListener('keydown', function(event) {
-            const cat = document.getElementById('cat');
-            let left = parseInt(window.getComputedStyle(cat).getPropertyValue('left'));
-            let bottom = parseInt(window.getComputedStyle(cat).getPropertyValue('bottom'));
-            switch(event.key) {
-                case 'ArrowLeft':
-                    if (left > 0) {
-                        cat.style.left = left - 20 + 'px';
-                    }
-                    break;
-                case 'ArrowRight':
-                    if (left < 700) {
-                        cat.style.left = left + 20 + 'px';
-                    }
-                    break;
-                case 'ArrowUp':
-                    if (bottom <= 50) {
-                        cat.style.bottom = bottom + 100 + 'px';
-                        setTimeout(() => {
-                            cat.style.bottom = '50px';
-                        }, 500);
-                    }
-                    break;
+            if (event.key === 'ArrowUp' && !isJumping) {
+                jump();
             }
         });
+
+        function jump() {
+            isJumping = true;
+            let count = 0;
+            const jumpInterval = setInterval(() => {
+                if (count < 15) {
+                    catPosition += 5;
+                    cat.style.bottom = catPosition + 'px';
+                } else if (count < 30) {
+                    catPosition -= 5;
+                    cat.style.bottom = catPosition + 'px';
+                } else {
+                    clearInterval(jumpInterval);
+                    isJumping = false;
+                }
+                count++;
+            }, 20);
+        }
 
         function checkCollision(cat, obstacle) {
             const catRect = cat.getBoundingClientRect();
@@ -178,20 +161,11 @@
         }
 
         setInterval(() => {
-            const cat = document.getElementById('cat');
-            const flower = document.getElementById('flower');
-            const rock = document.getElementById('rock');
+            const obstacle = document.getElementById('obstacle');
 
-            if (checkCollision(cat, flower)) {
-                alert('You collected a flower!');
-                flower.style.display = 'none';
-                setTimeout(() => {
-                    flower.style.display = 'block';
-                }, 2000);
-            }
-
-            if (checkCollision(cat, rock)) {
-                alert('Ouch! You hit a rock!');
+            if (checkCollision(cat, obstacle)) {
+                alert('Game Over!');
+                window.location.reload();
             }
         }, 100);
     </script>
