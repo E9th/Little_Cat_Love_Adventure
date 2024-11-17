@@ -69,16 +69,16 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            width: 80px;
-            height: 80px;
+              width: 160px;
+            height: 160px;
             background: url('cute_cat_character.png') no-repeat center; background-size: contain;
             border-radius: 15%; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             transition: left 0.2s ease;
         }
         .obstacle {
             position: absolute;
-            width: 60px;
-            height: 60px;
+            width: 160px;
+            height: 160px;
             background: url('cartoon_rock.png') no-repeat center; background-size: contain; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             border-radius: 50%;
             top: -120px;
@@ -87,8 +87,8 @@
 
         .coin {
             position: absolute;
-            width: 40px;
-            height: 40px;
+            width: 160px;
+            height: 160px;
             background: url('golden_coin_shiny.png') no-repeat center; background-size: contain; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             background-size: cover;
             top: -40px;
@@ -173,16 +173,21 @@
         function startGame() {
             startButton.style.display = 'none';
             pauseButton.style.display = 'block';
-            gameInterval = setInterval(gameLoop, 100);
+            gameInterval = requestAnimationFrame(gameLoop);
         }
 
         function togglePause() {
             if (isGamePaused) {
-                gameInterval = setInterval(gameLoop, 100);
+                gameInterval = requestAnimationFrame(gameLoop);
                 pauseButton.textContent = 'Pause';
                 isGamePaused = false;
             } else {
-                clearInterval(gameInterval);
+                isGamePaused = true;
+                cancelAnimationFrame(gameInterval);
+                pauseButton.textContent = 'Resume';
+            }
+        } else {
+                cancelAnimationFrame(gameInterval);
                 pauseButton.textContent = 'Resume';
                 isGamePaused = true;
             }
@@ -190,11 +195,13 @@
 
         document.addEventListener('keydown', function(event) {
             if (isGamePaused) return;
-            const catLeft = parseInt(window.getComputedStyle(cat).getPropertyValue('left'));
+            let catLeft = parseInt(window.getComputedStyle(cat).getPropertyValue('left'));
             if (event.key === 'ArrowLeft' && catLeft > 0) {
-                cat.style.left = Math.max(0, catLeft - 100) + 'px';
+                catLeft = Math.max(0, catLeft - 100);
+                cat.style.left = catLeft + 'px';
             } else if (event.key === 'ArrowRight' && catLeft < gameContainer.clientWidth - cat.clientWidth) {
-                cat.style.left = Math.min(gameContainer.clientWidth - cat.clientWidth, catLeft + 100) + 'px';
+                catLeft = Math.min(gameContainer.clientWidth - cat.clientWidth, catLeft + 100);
+                cat.style.left = catLeft + 'px';
             } else if (event.key === 'ArrowUp' && !isJumping) {
                 jump();
             }
@@ -242,7 +249,6 @@
                 const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
                 obstacle.style.left = randomLane + 'px';
                 obstacle.style.top = '-120px';
-                return; // Avoid collision detection after resetting
             }
 
             if (checkCollision(cat, obstacle)) {
@@ -250,15 +256,21 @@
                 alert('Game Over! Your score: ' + score);
                 window.location.reload();
             }
+
+            gameInterval = requestAnimationFrame(gameLoop);
+        }
         }
 
-        setInterval(() => {
-            // Randomize coin lane
+        function resetCoin() {
+            const lanes = [50, 250, 450, 650];
+            const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
+            coin.style.left = randomLane + 'px';
+            coin.style.top = '-80px';
+        }
+
+        function updateCoin() {
             if (coin.getBoundingClientRect().top >= gameContainer.clientHeight) {
-                const lanes = [50, 250, 450, 650];
-                const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
-                coin.style.left = randomLane + 'px';
-                coin.style.top = '-80px';
+                resetCoin();
             }
 
             if (checkCollision(cat, coin)) {
@@ -268,41 +280,47 @@
                 coinSound.play();
                 setTimeout(() => {
                     coin.style.display = 'block';
+                    resetCoin();
                 }, 1000);
             }
-        }, 100);
-    document.addEventListener('touchstart', handleTouchStart, false);
+        }
+
+        setInterval(updateCoin, 100);
+
+        document.addEventListener('touchstart', handleTouchStart, false);
         document.addEventListener('touchmove', handleTouchMove, false);
-        
+
         let xDown = null;
         let yDown = null;
-        
+
         function handleTouchStart(evt) {
             const firstTouch = evt.touches[0];
             xDown = firstTouch.clientX;
             yDown = firstTouch.clientY;
         };
-        
+
         function handleTouchMove(evt) {
             if (!xDown || !yDown) {
                 return;
             }
-            
+
             let xUp = evt.touches[0].clientX;
             let yUp = evt.touches[0].clientY;
-            
+
             let xDiff = xDown - xUp;
             let yDiff = yDown - yUp;
-            
-            const catLeft = parseInt(window.getComputedStyle(cat).getPropertyValue('left'));
-            
+
+            let catLeft = parseInt(window.getComputedStyle(cat).getPropertyValue('left'));
+
             if (Math.abs(xDiff) > Math.abs(yDiff)) { // Horizontal swipe
                 if (xDiff > 0 && catLeft > 0) {
                     // Left swipe
-                    cat.style.left = Math.max(0, catLeft - 100) + 'px';
+                    catLeft = Math.max(0, catLeft - 100);
+                    cat.style.left = catLeft + 'px';
                 } else if (xDiff < 0 && catLeft < gameContainer.clientWidth - cat.clientWidth) {
                     // Right swipe
-                    cat.style.left = Math.min(gameContainer.clientWidth - cat.clientWidth, catLeft + 100) + 'px';
+                    catLeft = Math.min(gameContainer.clientWidth - cat.clientWidth, catLeft + 100);
+                    cat.style.left = catLeft + 'px';
                 }
             } else { // Vertical swipe
                 if (yDiff > 0 && !isJumping) {
@@ -310,11 +328,11 @@
                     jump();
                 }
             }
-            
+
             // Reset values
             xDown = null;
             yDown = null;
         };
-        </script>
+    </script>
 </body>
 </html>
