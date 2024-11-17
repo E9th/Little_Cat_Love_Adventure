@@ -69,16 +69,16 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             background: url('cute_cat_character.png') no-repeat center; background-size: contain;
             border-radius: 15%; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             transition: left 0.2s ease;
         }
         .obstacle {
             position: absolute;
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             background: url('cartoon_rock.png') no-repeat center; background-size: contain; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             border-radius: 50%;
             top: -120px;
@@ -87,8 +87,8 @@
 
         .coin {
             position: absolute;
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             background: url('golden_coin_shiny.png') no-repeat center; background-size: contain; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             background-size: cover;
             top: -40px;
@@ -167,12 +167,16 @@
         let gameInterval;
         let isGamePaused = false;
 
-        startButton.addEventListener('click', startGame);
+        startButton.addEventListener('click', () => {
+            isGamePaused = false;
+            startGame();
+        });
         pauseButton.addEventListener('click', togglePause);
 
         function startGame() {
             startButton.style.display = 'none';
             pauseButton.style.display = 'block';
+            isGamePaused = false;
             gameInterval = requestAnimationFrame(gameLoop);
         }
 
@@ -182,15 +186,16 @@
                 pauseButton.textContent = 'Pause';
                 isGamePaused = false;
             } else {
+                isGamePaused = true;
                 cancelAnimationFrame(gameInterval);
                 pauseButton.textContent = 'Resume';
-                isGamePaused = true;
             }
         } else {
-                isGamePaused = true;
                 cancelAnimationFrame(gameInterval);
                 pauseButton.textContent = 'Resume';
+                isGamePaused = true;
             }
+        
         } 
         }
 
