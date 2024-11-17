@@ -199,6 +199,9 @@
             const lanes = [40, 340, 640]; // กำหนดคอลัมน์
             const gutter = 20;
 
+            let currentObstacleLane = Math.floor(Math.random() * lanes.length); // คอลัมน์ที่หินเริ่มต้น
+            let currentCoinLane = Math.floor(Math.random() * lanes.length); // คอลัมน์ที่เหรียญเริ่มต้น
+
             startButton.addEventListener('click', () => {
                 console.log("Start button clicked!");
                 isGamePaused = false;
@@ -230,7 +233,6 @@
 
             function startTimer() {
                 timerInterval = setInterval(() => {
-                    if (isGamePaused) return;
                     elapsedTime++;
                     const minutes = Math.floor(elapsedTime / 60);
                     const seconds = elapsedTime % 60;
@@ -273,7 +275,8 @@
                     let top = parseFloat(obstacle.style.top);
                     if (top >= 600) {
                         obstacle.style.top = '-100px';
-                        obstacle.style.left = lanes[Math.floor(Math.random() * lanes.length)] + 'px';
+                        obstacle.style.left = lanes[currentObstacleLane] + 'px';
+                        currentObstacleLane = Math.floor(Math.random() * lanes.length); // รีเซ็ตคอลัมน์หินใหม่
                     } else {
                         obstacle.style.top = top + speed + 'px';
                     }
@@ -286,7 +289,8 @@
                     let top = parseFloat(coin.style.top);
                     if (top >= 600) {
                         coin.style.top = '-80px';
-                        coin.style.left = lanes[Math.floor(Math.random() * lanes.length)] + 'px';
+                        coin.style.left = lanes[currentCoinLane] + 'px';
+                        currentCoinLane = Math.floor(Math.random() * lanes.length); // รีเซ็ตคอลัมน์เหรียญใหม่
                     } else {
                         coin.style.top = top + speed + 'px';
                     }
@@ -314,7 +318,7 @@
                         catRect.bottom > coinRect.top) {
                         score++;
                         coin.style.top = '-80px';
-                        coin.style.left = lanes[Math.floor(Math.random() * lanes.length)] + 'px';
+                        coin.style.left = lanes[currentCoinLane] + 'px';
                         coinSound.play();
                     }
                 });
