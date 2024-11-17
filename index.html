@@ -34,6 +34,7 @@
             height: 100px;
             background: pink;
             border-radius: 50%;
+            transition: left 0.1s, bottom 0.3s;
         }
 
         .ear {
@@ -97,6 +98,7 @@
             border-radius: 50%;
             bottom: 150px;
             left: 300px;
+            animation: moveFlower 5s infinite linear;
         }
 
         .rock {
@@ -107,6 +109,19 @@
             border-radius: 50%;
             bottom: 100px;
             right: 200px;
+            animation: moveRock 4s infinite linear;
+        }
+
+        @keyframes moveFlower {
+            0% { left: 300px; bottom: 150px; }
+            50% { left: 500px; bottom: 200px; }
+            100% { left: 300px; bottom: 150px; }
+        }
+
+        @keyframes moveRock {
+            0% { right: 200px; bottom: 100px; }
+            50% { right: 100px; bottom: 150px; }
+            100% { right: 200px; bottom: 100px; }
         }
     </style>
 </head>
@@ -147,6 +162,35 @@
                     break;
             }
         });
+
+        function checkCollision(cat, obstacle) {
+            const catRect = cat.getBoundingClientRect();
+            const obstacleRect = obstacle.getBoundingClientRect();
+            return !(
+                catRect.right < obstacleRect.left ||
+                catRect.left > obstacleRect.right ||
+                catRect.bottom < obstacleRect.top ||
+                catRect.top > obstacleRect.bottom
+            );
+        }
+
+        setInterval(() => {
+            const cat = document.getElementById('cat');
+            const flower = document.getElementById('flower');
+            const rock = document.getElementById('rock');
+
+            if (checkCollision(cat, flower)) {
+                alert('You collected a flower!');
+                flower.style.display = 'none';
+                setTimeout(() => {
+                    flower.style.display = 'block';
+                }, 2000);
+            }
+
+            if (checkCollision(cat, rock)) {
+                alert('Ouch! You hit a rock!');
+            }
+        }, 100);
     </script>
 </body>
 </html>
