@@ -258,10 +258,15 @@
                     obstacle.style.top = (parseInt(obstacle.style.top) || -120) + 5 + 'px';
                 }
 
-                if (checkCollision(cat, obstacle)) {
-                    gameOverSound.play();
-                    alert('Game Over! Your score: ' + score);
-                    window.location.reload();
+                // Only check collision when obstacle is above the bottom edge
+                if (obstacle.getBoundingClientRect().top < gameContainer.clientHeight - obstacle.clientHeight) {
+                    if (checkCollision(cat, obstacle)) {
+                        gameOverSound.play();
+                        setTimeout(() => {
+                            alert('Game Over! Your score: ' + score);
+                            window.location.reload();
+                        }, 100);
+                    }
                 }
 
                 gameInterval = requestAnimationFrame(gameLoop);
