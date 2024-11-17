@@ -24,13 +24,17 @@
             height: 600px;
             border: 2px solid #333;
             overflow: hidden;
-            background-image: url('background-image.jpg');
+            background-image: url('/mnt/data/A_cute_and_colorful_vertical_scrolling_background_.png');
             background-size: cover;
-            animation: moveBackground 10s linear infinite;
+            animation: moveBackground 15s linear infinite;
         }
 
         @keyframes moveBackground {
             0% { background-position: 0 0; }
+            100% { background-position: 0 -1200px; }
+        }
+            100% { background-position: -1600px 0; }
+        }
             100% { background-position: -800px 0; }
         }
 
@@ -105,7 +109,7 @@
             height: 60px;
             background: url('AlbedoBase_XL_just_little_stone_2.png') no-repeat center; background-size: cover;
             border-radius: 50%;
-            top: -60px;
+            top: -120px;
             animation: moveObstacle 5s linear infinite;
         }
 
@@ -154,13 +158,13 @@
         }
 
         @keyframes moveObstacle {
-            0% { top: -60px; }
-            100% { top: 600px; }
+            0% { top: -120px; }
+            100% { top: 1200px; }
         }
 
         @keyframes moveCoin {
-            0% { top: -40px; }
-            100% { top: 600px; }
+            0% { top: -80px; }
+            100% { top: 1200px; }
         }
     </style>
 </head>
@@ -274,6 +278,7 @@
                 const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
                 obstacle.style.left = randomLane + 'px';
                 obstacle.style.top = '-60px';
+                return; // Avoid collision detection after resetting
             }
 
             if (checkCollision(cat, obstacle)) {
