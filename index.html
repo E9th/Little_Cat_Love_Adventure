@@ -15,6 +15,7 @@
             height: 100vh;
             background-color: #f0f8ff;
             font-family: Arial, sans-serif;
+            overflow: hidden;
         }
 
         .game-container {
@@ -28,14 +29,14 @@
 
         .cat {
             position: absolute;
-            bottom: 50px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             width: 80px;
             height: 80px;
             background: pink;
             border-radius: 50%;
-            transition: bottom 0.1s linear;
+            transition: left 0.2s ease;
         }
 
         .ear {
@@ -93,17 +94,32 @@
 
         .obstacle {
             position: absolute;
-            width: 40px;
-            height: 40px;
+            width: 60px;
+            height: 60px;
             background: #8b4513;
             border-radius: 50%;
-            bottom: 50px;
-            animation: moveObstacle 3s infinite linear;
+            top: -60px;
+            animation: moveObstacle 5s linear infinite;
+        }
+
+        .coin {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: gold;
+            border-radius: 50%;
+            top: -40px;
+            animation: moveCoin 6s linear infinite;
         }
 
         @keyframes moveObstacle {
-            0% { left: 800px; }
-            100% { left: -40px; }
+            0% { top: -60px; }
+            100% { top: 600px; }
+        }
+
+        @keyframes moveCoin {
+            0% { top: -40px; }
+            100% { top: 600px; }
         }
     </style>
 </head>
@@ -119,14 +135,22 @@
             </div>
         </div>
         <div class="obstacle" id="obstacle"></div>
+        <div class="coin" id="coin"></div>
     </div>
     <script>
         const cat = document.getElementById('cat');
-        let catPosition = 0;
+        const gameContainer = document.querySelector('.game-container');
+        const coin = document.getElementById('coin');
         let isJumping = false;
+        let score = 0;
 
         document.addEventListener('keydown', function(event) {
-            if (event.key === 'ArrowUp' && !isJumping) {
+            const catLeft = parseInt(window.getComputedStyle(cat).getPropertyValue('left'));
+            if (event.key === 'ArrowLeft' && catLeft > 0) {
+                cat.style.left = catLeft - 100 + 'px';
+            } else if (event.key === 'ArrowRight' && catLeft < gameContainer.clientWidth - cat.clientWidth) {
+                cat.style.left = catLeft + 100 + 'px';
+            } else if (event.key === 'ArrowUp' && !isJumping) {
                 jump();
             }
         });
@@ -134,13 +158,14 @@
         function jump() {
             isJumping = true;
             let count = 0;
+            let catBottom = parseInt(window.getComputedStyle(cat).getPropertyValue('bottom'));
             const jumpInterval = setInterval(() => {
                 if (count < 15) {
-                    catPosition += 5;
-                    cat.style.bottom = catPosition + 'px';
+                    catBottom += 5;
+                    cat.style.bottom = catBottom + 'px';
                 } else if (count < 30) {
-                    catPosition -= 5;
-                    cat.style.bottom = catPosition + 'px';
+                    catBottom -= 5;
+                    cat.style.bottom = catBottom + 'px';
                 } else {
                     clearInterval(jumpInterval);
                     isJumping = false;
@@ -149,25 +174,55 @@
             }, 20);
         }
 
-        function checkCollision(cat, obstacle) {
+        function checkCollision(cat, element) {
             const catRect = cat.getBoundingClientRect();
-            const obstacleRect = obstacle.getBoundingClientRect();
+            const elementRect = element.getBoundingClientRect();
             return !(
-                catRect.right < obstacleRect.left ||
-                catRect.left > obstacleRect.right ||
-                catRect.bottom < obstacleRect.top ||
-                catRect.top > obstacleRect.bottom
+                catRect.right < elementRect.left ||
+                catRect.left > elementRect.right ||
+                catRect.bottom < elementRect.top ||
+                catRect.top > elementRect.bottom
             );
         }
 
         setInterval(() => {
             const obstacle = document.getElementById('obstacle');
 
+            // Randomize obstacle lane
+            if (obstacle.getBoundingClientRect().top >= gameContainer.clientHeight) {
+                const lanes = [100, 300, 500];
+                const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
+                obstacle.style.left = randomLane + 'px';
+            }
+
             if (checkCollision(cat, obstacle)) {
-                alert('Game Over!');
+                alert('Game Over! Your score: ' + score);
                 window.location.reload();
             }
         }, 100);
+
+        setInterval(() => {
+            // Randomize coin lane
+            if (coin.getBoundingClientRect().top >= gameContainer.clientHeight) {
+                const lanes = [50, 250, 450, 650];
+                const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
+                coin.style.left = randomLane + 'px';
+            }
+
+            if (checkCollision(cat, coin)) {
+                score += 10;
+                coin.style.display = 'none';
+                setTimeout(() => {
+                    coin.style.display = 'block';
+                }, 1000);
+            }
+        }, 100);
+
+        // Increase game speed over time
+        setInterval(() => {
+            const currentAnimationDuration = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--animation-duration') || '5');
+            document.documentElement.style.setProperty('--animation-duration', (currentAnimationDuration * 0.95) + 's');
+        }, 5000);
     </script>
 </body>
 </html>
