@@ -134,6 +134,7 @@
             border: none;
             cursor: pointer;
             border-radius: 10px;
+            z-index: 10; /* เพิ่ม z-index เพื่อให้ปุ่มอยู่เหนือองค์ประกอบอื่น */
         }
 
         .pause-button {
@@ -199,6 +200,7 @@
             const gutter = 20;
 
             startButton.addEventListener('click', () => {
+                console.log("Start button clicked!"); // เพิ่มการตรวจสอบการคลิก
                 isGamePaused = false;
                 startGame();
             });
@@ -226,12 +228,13 @@
                 }
             }
 
-            $1
-                        speed += 0.2;
-                        const minutes = Math.floor(elapsedTime / 60);
-                        const seconds = elapsedTime % 60;
-                        timerBoard.textContent = `Time: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-                    }
+            function startTimer() {
+                timerInterval = setInterval(() => {
+                    if (isGamePaused) return;
+                    elapsedTime++;
+                    const minutes = Math.floor(elapsedTime / 60);
+                    const seconds = elapsedTime % 60;
+                    timerBoard.textContent = `Time: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
                 }, 1000);
             }
 
@@ -242,148 +245,109 @@
                     cat.style.left = lanes[currentLane - 1] + 'px';
                 } else if (event.key === 'ArrowRight' && currentLane < lanes.length - 1) {
                     cat.style.left = lanes[currentLane + 1] + 'px';
-                } else if (event.key === 'ArrowUp' && !isJumping) {
-                    jump();
+                } else if (event.key === ' ' && !isJumping) {
+                    isJumping = true;
+                    cat.style.transition = 'none';
+                    cat.style.bottom = '200px';
+                    jumpSound.play();
+                    setTimeout(() => {
+                        cat.style.transition = 'bottom 0.5s ease';
+                        cat.style.bottom = '20px';
+                        isJumping = false;
+                    }, 500);
                 }
             });
 
-            function jump() {
-                isJumping = true;
-                jumpSound.play();
-                let count = 0;
-                let catBottom = parseInt(window.getComputedStyle(cat).getPropertyValue('bottom'));
-                const jumpInterval = setInterval(() => {
-                    if (count < 15) {
-                        catBottom += 5;
-                        cat.style.bottom = catBottom + 'px';
-                    } else if (count < 30) {
-                        catBottom -= 5;
-                        cat.style.bottom = catBottom + 'px';
-                    } else {
-                        clearInterval(jumpInterval);
-                        isJumping = false;
-                    }
-                    count++;
-                }, 20);
-            }
-
-            function checkCollision(cat, element) {
-                const catRect = cat.getBoundingClientRect();
-                const elementRect = element.getBoundingClientRect();
-                return !(
-                    catRect.right < elementRect.left ||
-                    catRect.left > elementRect.right ||
-                    catRect.bottom < elementRect.top ||
-                    catRect.top > elementRect.bottom
-                );
-            }
-
             function gameLoop() {
                 if (isGamePaused) return;
-
-                const obstacle = document.getElementById('obstacle');
-
-                // Randomize obstacle lane and reset position if it reaches the bottom
-                if (obstacle.getBoundingClientRect().top >= gameContainer.clientHeight) {
-                    const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
-                    obstacle.style.left = randomLane + 'px';
-                    obstacle.style.top = '-120px';
-                    speed += 0.5; // Increase speed to make the game more challenging
-                } else {
-                    obstacle.style.top = (parseInt(obstacle.style.top) || -120) + speed + 'px';
-                }
-
-                // Only check collision when obstacle is above the bottom edge
-                if (obstacle.getBoundingClientRect().top < gameContainer.clientHeight - obstacle.clientHeight) {
-                    if (checkCollision(cat, obstacle)) {
-                    gameOverSound.play();
-                    lives = Math.max(0, lives - 1);
-                    livesBoard.textContent = 'Lives: ' + lives;
-                    obstacle.style.top = '-120px';
-                    if (lives <= 0) {
-                            setTimeout(() => {
-                                alert('Game Over! Your score: ' + score);
-                                window.location.reload();
-                            }, 100);
-                        } else {
-                            obstacle.style.top = '-120px';
-                        }
-                    }
-                }
-
+                moveObstacles();
+                moveCoins();
+                checkCollisions();
+                scoreBoard.textContent = `Score: ${score}`;
+                livesBoard.textContent = `Lives: ${lives}`;
                 gameInterval = requestAnimationFrame(gameLoop);
             }
 
-            function resetCoin() {
-                const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
-                coin.style.left = randomLane + 'px';
-                coin.style.top = '-80px';
-            }
-
-            function updateCoin() {
-                if (coin.getBoundingClientRect().top >= gameContainer.clientHeight) {
-                    resetCoin();
-                } else {
-                    coin.style.top = (parseInt(coin.style.top) || -80) + speed + 'px';
-                }
-
-                if (checkCollision(cat, coin)) {
-                    score += 10;
-                    scoreBoard.textContent = 'Score: ' + score;
-                    coin.style.display = 'none';
-                    coinSound.play();
-                    setTimeout(() => {
-                        coin.style.display = 'block';
-                        resetCoin();
-                    }, 1000);
-                }
-            }
-
-            setInterval(updateCoin, 100);
-
-            document.addEventListener('touchstart', handleTouchStart, false);
-            document.addEventListener('touchmove', handleTouchMove, false);
-
-            let xDown = null;
-            let yDown = null;
-
-            function handleTouchStart(evt) {
-                const firstTouch = evt.touches[0];
-                xDown = firstTouch.clientX;
-                yDown = firstTouch.clientY;
-            }
-
-            function handleTouchMove(evt) {
-                if (!xDown || !yDown) {
-                    return;
-                }
-
-                let xUp = evt.touches[0].clientX;
-                let yUp = evt.touches[0].clientY;
-
-                let xDiff = xDown - xUp;
-                let yDiff = yDown - yUp;
-
-                let currentLane = lanes.indexOf(parseInt(cat.style.left));
-
-                if (Math.abs(xDiff) > Math.abs(yDiff)) { // Horizontal swipe
-                    if (xDiff > 0 && currentLane > 0) {
-                        // Left swipe
-                        cat.style.left = lanes[currentLane - 1] + 'px';
-                    } else if (xDiff < 0 && currentLane < lanes.length - 1) {
-                        // Right swipe
-                        cat.style.left = lanes[currentLane + 1] + 'px';
+            function moveObstacles() {
+                const obstacles = document.querySelectorAll('.obstacle');
+                obstacles.forEach(obstacle => {
+                    let top = parseFloat(obstacle.style.top);
+                    if (top >= 600) {
+                        obstacle.style.top = '-100px';
+                        obstacle.style.left = lanes[Math.floor(Math.random() * lanes.length)] + 'px';
+                    } else {
+                        obstacle.style.top = top + speed + 'px';
                     }
-                } else { // Vertical swipe
-                    if (yDiff > 0 && !isJumping) {
-                        // Up swipe
-                        jump();
-                    }
-                }
+                });
+            }
 
-                // Reset values
-                xDown = null;
-                yDown = null;
+            function moveCoins() {
+                const coins = document.querySelectorAll('.coin');
+                coins.forEach(coin => {
+                    let top = parseFloat(coin.style.top);
+                    if (top >= 600) {
+                        coin.style.top = '-80px';
+                        coin.style.left = lanes[Math.floor(Math.random() * lanes.length)] + 'px';
+                    } else {
+                        coin.style.top = top + speed + 'px';
+                    }
+                });
+            }
+
+            function checkCollisions() {
+                const catRect = cat.getBoundingClientRect();
+                const obstacles = document.querySelectorAll('.obstacle');
+                obstacles.forEach(obstacle => {
+                    const obstacleRect = obstacle.getBoundingClientRect();
+                    if (catRect.left < obstacleRect.right &&
+                        catRect.right > obstacleRect.left &&
+                        catRect.top < obstacleRect.bottom &&
+                        catRect.bottom > obstacleRect.top) {
+                        gameOver();
+                    }
+                });
+                const coins = document.querySelectorAll('.coin');
+                coins.forEach(coin => {
+                    const coinRect = coin.getBoundingClientRect();
+                    if (catRect.left < coinRect.right &&
+                        catRect.right > coinRect.left &&
+                        catRect.top < coinRect.bottom &&
+                        catRect.bottom > coinRect.top) {
+                        score++;
+                        coin.style.top = '-80px';
+                        coin.style.left = lanes[Math.floor(Math.random() * lanes.length)] + 'px';
+                        coinSound.play();
+                    }
+                });
+            }
+
+            function gameOver() {
+                lives--;
+                if (lives <= 0) {
+                    alert('Game Over! Your score: ' + score);
+                    resetGame();
+                }
+            }
+
+            function resetGame() {
+                score = 0;
+                lives = 3;
+                elapsedTime = 0;
+                isGamePaused = true;
+                startButton.style.display = 'block';
+                pauseButton.style.display = 'none';
+                cancelAnimationFrame(gameInterval);
+                clearInterval(timerInterval);
+                cat.style.left = '270px';
+                cat.style.bottom = '20px';
+                const obstacles = document.querySelectorAll('.obstacle');
+                obstacles.forEach(obstacle => {
+                    obstacle.style.top = '-120px';
+                });
+                const coins = document.querySelectorAll('.coin');
+                coins.forEach(coin => {
+                    coin.style.top = '-80px';
+                });
             }
         });
     </script>
