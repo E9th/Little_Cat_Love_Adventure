@@ -34,7 +34,7 @@
             height: 100px;
             background: pink;
             border-radius: 50%;
-            transition: left 0.1s, bottom 0.3s;
+            transition: all 0.2s ease;
         }
 
         .ear {
@@ -143,22 +143,25 @@
         document.addEventListener('keydown', function(event) {
             const cat = document.getElementById('cat');
             let left = parseInt(window.getComputedStyle(cat).getPropertyValue('left'));
+            let bottom = parseInt(window.getComputedStyle(cat).getPropertyValue('bottom'));
             switch(event.key) {
                 case 'ArrowLeft':
                     if (left > 0) {
-                        cat.style.left = left - 10 + 'px';
+                        cat.style.left = left - 20 + 'px';
                     }
                     break;
                 case 'ArrowRight':
                     if (left < 700) {
-                        cat.style.left = left + 10 + 'px';
+                        cat.style.left = left + 20 + 'px';
                     }
                     break;
                 case 'ArrowUp':
-                    cat.style.bottom = '150px';
-                    setTimeout(() => {
-                        cat.style.bottom = '50px';
-                    }, 300);
+                    if (bottom <= 50) {
+                        cat.style.bottom = bottom + 100 + 'px';
+                        setTimeout(() => {
+                            cat.style.bottom = '50px';
+                        }, 500);
+                    }
                     break;
             }
         });
