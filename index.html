@@ -24,13 +24,103 @@
                 width: 50px;
                 height: 50px;
             }
-            .score-board {$1color: #ffffff;
+            .score-board {
+                font-size: 20px;
+            }
+            .start-button {
+                padding: 10px 20px;
+                font-size: 20px;
+            }
+            .pause-button {
+                padding: 8px 16px;
+                font-size: 16px;
+            }
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f8ff;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
         }
 
-        .lives-board {$1color: #ffffff;
+        .game-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            border: 2px solid #333;
+            overflow: hidden;
+            background-image: url('forest_background.png'); 
+            background-size: 100% 100%;
+            animation: moveBackground 15s linear infinite;
         }
 
-        .timer-board {$1color: #ffffff;
+        @keyframes moveBackground {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 1200px; }
+        }
+
+        .cat {
+            position: absolute;
+            bottom: 20px;
+            left: 270px;
+            width: 120px;
+            height: 120px;
+            background: url('cute_cat_character.png') no-repeat center; 
+            background-size: contain;
+            border-radius: 15%; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: left 0.2s ease;
+        }
+        .obstacle {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: url('cartoon_rock.png') no-repeat center; 
+            background-size: contain; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            top: -120px;
+            animation: moveObstacle 5s linear infinite;
+        }
+
+        .coin {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: url('golden_coin_shiny.png') no-repeat center; 
+            background-size: cover; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            top: -40px;
+            animation: moveCoin 6s linear infinite;
+        }
+
+        .score-board {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .lives-board {
+            position: absolute;
+            top: 10px;
+            right: 150px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .timer-board {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            font-size: 24px;
+            color: #333;
         }
 
         .start-button {
