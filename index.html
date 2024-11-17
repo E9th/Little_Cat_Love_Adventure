@@ -13,31 +13,17 @@
                 border: none;
             }
             .cat {
-                width: 30px;
-                height: 30px;
+                width: 40px;
+                height: 40px;
             }
             .obstacle {
-                width: 25px;
-                height: 25px;
+                width: 35px;
+                height: 35px;
             }
-
-                      }
-            .fish {
-                width: 25px;
-                height: 25px;
-            }
-
-                  }
             .coin {
                 width: 25px;
                 height: 25px;
             }
-            
-
-        @keyframes moveFish {
-            0% { top: -60px; }
-            100% { top: 600px; }
-        }
             .score-board {
                 font-size: 20px;
             }
@@ -81,35 +67,19 @@
         .cat {
             position: absolute;
             bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 120px;
+            left: 0;
+            width: 100px;
+            height: 100px;
             background: url('cute_cat_character.png') no-repeat center; 
             background-size: contain;
             border-radius: 15%; 
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             transition: left 0.2s ease;
         }
-
-              .fish {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 80px;
-            background: url('fish_icon.png') no-repeat center;
-            background-size: contain;
-            border-radius: 15%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            transition: left 0.2s ease;
-        }
-      
         .obstacle {
             position: absolute;
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             background: url('cartoon_rock.png') no-repeat center; 
             background-size: contain; 
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -120,8 +90,8 @@
 
         .coin {
             position: absolute;
-            width: 80px;
-            height: 80px;
+            width: 40px;
+            height: 40px;
             background: url('golden_coin_shiny.png') no-repeat center; 
             background-size: cover; 
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -191,8 +161,7 @@
     </style>
 </head>
 <body>
-    
-        <div class="fish" id="fish"></div>
+    <div class="game-container">
         <div class="score-board" id="score-board">Score: 0</div>
         <div class="lives-board" id="lives-board">Lives: 3</div>
         <div class="timer-board" id="timer-board">Time: 0:00</div>
@@ -206,8 +175,7 @@
     <audio id="jump-sound" src="toy-button-105724.mp3" preload="auto"></audio>
     <audio id="game-over-sound" src="small-rock-break-194553.mp3" preload="auto"></audio>
     <script>
-        
-            const fish = document.getElementById('fish');
+        document.addEventListener('DOMContentLoaded', () => {
             const cat = document.getElementById('cat');
             const gameContainer = document.querySelector('.game-container');
             const coin = document.getElementById('coin');
@@ -227,6 +195,8 @@
             let speed = 5;
             let elapsedTime = 0;
             let timerInterval;
+            const lanes = [0, 260, 520];
+            const gutter = 20;
 
             startButton.addEventListener('click', () => {
                 isGamePaused = false;
@@ -234,8 +204,7 @@
             });
             pauseButton.addEventListener('click', togglePause);
 
-            
-                resetFish();
+            function startGame() {
                 startButton.style.display = 'none';
                 pauseButton.style.display = 'block';
                 isGamePaused = false;
@@ -270,13 +239,11 @@
 
             document.addEventListener('keydown', function(event) {
                 if (isGamePaused) return;
-                let catLeft = parseInt(window.getComputedStyle(cat).getPropertyValue('left'));
-                if (event.key === 'ArrowLeft' && catLeft > 0) {
-                    catLeft = Math.max(0, catLeft - 100);
-                    cat.style.left = catLeft + 'px';
-                } else if (event.key === 'ArrowRight' && catLeft < gameContainer.clientWidth - cat.clientWidth) {
-                    catLeft = Math.min(gameContainer.clientWidth - cat.clientWidth, catLeft + 100);
-                    cat.style.left = catLeft + 'px';
+                let currentLane = lanes.indexOf(parseInt(cat.style.left));
+                if (event.key === 'ArrowLeft' && currentLane > 0) {
+                    cat.style.left = lanes[currentLane - 1] + 'px';
+                } else if (event.key === 'ArrowRight' && currentLane < lanes.length - 1) {
+                    cat.style.left = lanes[currentLane + 1] + 'px';
                 } else if (event.key === 'ArrowUp' && !isJumping) {
                     jump();
                 }
@@ -313,15 +280,13 @@
                 );
             }
 
-            
-                updateFish();
+            function gameLoop() {
                 if (isGamePaused) return;
 
                 const obstacle = document.getElementById('obstacle');
 
                 // Randomize obstacle lane and reset position if it reaches the bottom
                 if (obstacle.getBoundingClientRect().top >= gameContainer.clientHeight) {
-                    const lanes = [100, 300, 500];
                     const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
                     obstacle.style.left = randomLane + 'px';
                     obstacle.style.top = '-120px';
@@ -334,10 +299,10 @@
                 if (obstacle.getBoundingClientRect().top < gameContainer.clientHeight - obstacle.clientHeight) {
                     if (checkCollision(cat, obstacle)) {
                     gameOverSound.play();
-                    lives = Math.max(0, lives - 1);
+                    lives--;
                     livesBoard.textContent = 'Lives: ' + lives;
                     obstacle.style.top = '-120px';
-                    if (lives === 0) {
+                    if (lives <= 0) {
                             setTimeout(() => {
                                 alert('Game Over! Your score: ' + score);
                                 window.location.reload();
@@ -351,39 +316,13 @@
                 gameInterval = requestAnimationFrame(gameLoop);
             }
 
-            
-            function resetFish() {
-                const lanes = [75, 200, 325, 450, 575];
-                const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
-                fish.style.left = randomLane + 'px';
-                fish.style.top = '-60px';
-            }
-                const lanes = [50, 250, 450, 650];
+            function resetCoin() {
                 const randomLane = lanes[Math.floor(Math.random() * lanes.length)];
                 coin.style.left = randomLane + 'px';
                 coin.style.top = '-80px';
             }
 
-            
-            function updateFish() {
-                if (fish.getBoundingClientRect().top >= gameContainer.clientHeight) {
-                    resetFish();
-                } else {
-                    fish.style.top = (parseInt(fish.style.top) || -60) + speed + 'px';
-                }
-
-                if (checkCollision(cat, fish)) {
-                    if (lives < 3) {
-                        lives++;
-                        livesBoard.textContent = 'Lives: ' + lives;
-                    }
-                    fish.style.display = 'none';
-                    setTimeout(() => {
-                        fish.style.display = 'block';
-                        resetFish();
-                    }, 1000);
-                }
-            }
+            function updateCoin() {
                 if (coin.getBoundingClientRect().top >= gameContainer.clientHeight) {
                     resetCoin();
                 } else {
@@ -427,17 +366,15 @@
                 let xDiff = xDown - xUp;
                 let yDiff = yDown - yUp;
 
-                let catLeft = parseInt(window.getComputedStyle(cat).getPropertyValue('left'));
+                let currentLane = lanes.indexOf(parseInt(cat.style.left));
 
                 if (Math.abs(xDiff) > Math.abs(yDiff)) { // Horizontal swipe
-                    if (xDiff > 0 && catLeft > 0) {
+                    if (xDiff > 0 && currentLane > 0) {
                         // Left swipe
-                        catLeft = Math.max(0, catLeft - 100);
-                        cat.style.left = catLeft + 'px';
-                    } else if (xDiff < 0 && catLeft < gameContainer.clientWidth - cat.clientWidth) {
+                        cat.style.left = lanes[currentLane - 1] + 'px';
+                    } else if (xDiff < 0 && currentLane < lanes.length - 1) {
                         // Right swipe
-                        catLeft = Math.min(gameContainer.clientWidth - cat.clientWidth, catLeft + 100);
-                        cat.style.left = catLeft + 'px';
+                        cat.style.left = lanes[currentLane + 1] + 'px';
                     }
                 } else { // Vertical swipe
                     if (yDiff > 0 && !isJumping) {
