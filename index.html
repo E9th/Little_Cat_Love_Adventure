@@ -67,7 +67,7 @@
         .cat {
             position: absolute;
             bottom: 20px;
-            left: 270px;
+            left: 270px; /* เริ่มที่คอลัมน์กลาง */
             width: 120px;
             height: 120px;
             background: url('cute_cat_character.png') no-repeat center; 
@@ -134,7 +134,7 @@
             border: none;
             cursor: pointer;
             border-radius: 10px;
-            z-index: 10; /* เพิ่ม z-index เพื่อให้ปุ่มอยู่เหนือองค์ประกอบอื่น */
+            z-index: 10;
         }
 
         .pause-button {
@@ -196,11 +196,11 @@
             let speed = 5;
             let elapsedTime = 0;
             let timerInterval;
-            const lanes = [40, 340, 640];
+            const lanes = [40, 340, 640]; // กำหนดคอลัมน์
             const gutter = 20;
 
             startButton.addEventListener('click', () => {
-                console.log("Start button clicked!"); // เพิ่มการตรวจสอบการคลิก
+                console.log("Start button clicked!");
                 isGamePaused = false;
                 startGame();
             });
@@ -238,9 +238,8 @@
                 }, 1000);
             }
 
-            document.addEventListener('keydown', function(event) {
-                if (isGamePaused) return;
-                let currentLane = lanes.indexOf(parseInt(cat.style.left));
+            document.addEventListener('keydown', (event) => {
+                const currentLane = lanes.indexOf(parseFloat(cat.style.left));
                 if (event.key === 'ArrowLeft' && currentLane > 0) {
                     cat.style.left = lanes[currentLane - 1] + 'px';
                 } else if (event.key === 'ArrowRight' && currentLane < lanes.length - 1) {
