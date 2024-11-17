@@ -298,32 +298,36 @@
             }
 
             function checkCollisions() {
-                const catRect = cat.getBoundingClientRect();
-                const obstacles = document.querySelectorAll('.obstacle');
-                obstacles.forEach(obstacle => {
-                    const obstacleRect = obstacle.getBoundingClientRect();
-                    if (catRect.left < obstacleRect.right &&
-                        catRect.right > obstacleRect.left &&
-                        catRect.top < obstacleRect.bottom &&
-                        catRect.bottom > obstacleRect.top) {
-                        gameOver();
-                    }
-                });
-                const coins = document.querySelectorAll('.coin');
-                coins.forEach(coin => {
-                    const coinRect = coin.getBoundingClientRect();
-                    if (catRect.left < coinRect.right &&
-                        catRect.right > coinRect.left &&
-                        catRect.top < coinRect.bottom &&
-                        catRect.bottom > coinRect.top) {
-                        score++;
-                        coin.style.top = '-80px';
-                        coin.style.left = lanes[currentCoinLane] + 'px';
-                        coinSound.play();
-                    }
-                });
-            }
+    const catRect = cat.getBoundingClientRect();
+    
+    // ตรวจจับการชนกับหิน
+    const obstacles = document.querySelectorAll('.obstacle');
+    obstacles.forEach(obstacle => {
+        const obstacleRect = obstacle.getBoundingClientRect();
+        if (catRect.left < obstacleRect.right &&
+            catRect.right > obstacleRect.left &&
+            catRect.top < obstacleRect.bottom &&
+            catRect.bottom > obstacleRect.top) {
+            gameOver();
+        }
+    });
 
+    // ตรวจจับการชนกับเหรียญ
+    const coins = document.querySelectorAll('.coin');
+    coins.forEach(coin => {
+        const coinRect = coin.getBoundingClientRect();
+        if (catRect.left < coinRect.right &&
+            catRect.right > coinRect.left &&
+            catRect.top < coinRect.bottom &&
+            catRect.bottom > coinRect.top) {
+            score++; // เพิ่มคะแนน
+            coin.style.top = '-80px'; // ย้ายเหรียญขึ้นไปนอกจอ
+            coin.style.left = lanes[currentCoinLane] + 'px'; // เปลี่ยนคอลัมน์เหรียญ
+            coinSound.play(); // เล่นเสียงเหรียญ
+        }
+    });
+}
+            
             function gameOver() {
                 lives--;
                 if (lives <= 0) {
